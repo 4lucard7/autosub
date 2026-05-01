@@ -1,6 +1,6 @@
 .env
 __pycache__/*
-.venv/*
+venv
 .env.local
 .env.production
 .env.development
@@ -10,3 +10,4 @@ __pycache__/*
 .env.dev
 .env.test
 .env.example
+storage
