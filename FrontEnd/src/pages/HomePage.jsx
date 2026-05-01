@@ -43,53 +43,98 @@ function Navbar() {
 /* ── Hero Section ── */
 function Hero() {
   return (
-    <section className="pt-32 pb-20 bg-white">
+    <section className="pt-32 pb-20 bg-gradient-to-b from-white to-gray-50/50">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Badge */}
-        <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-gray-100 rounded-full">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-            <span className="text-[11px] font-medium text-gray-600">Trusted by 10,000+ creators worldwide</span>
-          </div>
-        </div>
-
-        {/* Heading */}
-        <h1 className="text-center text-[48px] md:text-[56px] font-extrabold text-gray-900 leading-[1.08] tracking-tight max-w-3xl mx-auto">
-          Generate Subtitles<br />Instantly <span className="text-gray-400">with AI</span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="text-center text-[15px] text-gray-500 mt-5 max-w-lg mx-auto leading-relaxed">
-          Upload your video, let our AI transcribe, translate, and burn subtitles in seconds. Perfect for creators who want
-          global reach without the wait.
-        </p>
-
-        {/* CTA */}
-        <div className="flex justify-center mt-8">
-          <Link
-            to="/upload"
-            className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-gray-900 text-white text-[14px] font-semibold rounded-xl hover:bg-gray-800 active:scale-[0.97] transition-all shadow-xl shadow-gray-900/20"
-          >
-            Try it Free
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </Link>
-        </div>
-
-        {/* Stats row */}
-        <div className="flex items-center justify-center gap-12 mt-14 pt-8 border-t border-gray-100">
-          {[
-            { icon: '◎', label: 'SUBTITLES', value: '10M+' },
-            { icon: '⟳', label: 'SYNC', value: '99.2%' },
-            { icon: '🌐', label: 'LANGUAGES', value: '50+' },
-            { icon: '⚡', label: 'SPEED', value: '<30s' },
-          ].map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">{stat.label}</span>
-              <span className="text-[20px] font-bold text-gray-900">{stat.value}</span>
+        <div className="flex flex-col lg:flex-row items-center gap-16">
+          {/* Left Text */}
+          <div className="flex-1 text-left">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2.5 px-1.5 py-1.5 bg-white border border-gray-100 rounded-full shadow-sm mb-8">
+              <span className="px-2.5 py-0.5 bg-gray-100 text-[11px] font-semibold text-gray-800 rounded-full uppercase tracking-wide">New</span>
+              <span className="text-[12px] font-medium text-gray-500 pr-3">V3 Engine is now live with 99.8% accuracy</span>
             </div>
-          ))}
+
+            {/* Heading */}
+            <h1 className="text-[52px] md:text-[64px] font-extrabold text-gray-900 leading-[1.05] tracking-tight mb-6">
+              Generate Subtitles<br />
+              Instantly <span className="text-gray-300">with AI</span>
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-[16px] text-gray-500 leading-relaxed max-w-lg mb-10">
+              Upload your video and watch as our neural engines transcribe, translate, and sync subtitles in seconds. Perfect for creators who value speed and precision.
+            </p>
+
+            {/* Actions */}
+            <div className="flex items-center gap-4 mb-8">
+              <Link
+                to="/upload"
+                className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-gray-900 to-gray-700 text-white text-[15px] font-semibold rounded-xl hover:from-gray-800 hover:to-gray-600 active:scale-[0.98] transition-all shadow-xl shadow-gray-900/20"
+              >
+                Upload Video
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+              <button className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 text-[15px] font-semibold rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all border border-gray-100 shadow-sm">
+                Watch Demo
+              </button>
+            </div>
+
+            {/* Features */}
+            <div className="flex items-center gap-6 text-[13px] font-medium text-gray-500">
+              <div className="flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                No card required
+              </div>
+              <div className="flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                10 free minutes
+              </div>
+              <div className="flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                HD Support
+              </div>
+            </div>
+          </div>
+
+          {/* Right Image/Mockup */}
+          <div className="flex-1 relative w-full flex justify-end">
+            <div className="relative w-full max-w-[500px]">
+              {/* Main video mock */}
+              <div className="w-full aspect-[4/3] bg-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden relative border border-gray-800">
+                <img src="https://images.unsplash.com/photo-1600607688969-a5bfcd64bd2b?q=80&w=800&auto=format&fit=crop" alt="Video preview" className="w-full h-full object-cover opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                {/* Subtitle block */}
+                <div className="absolute bottom-12 left-6 right-6">
+                  <div className="bg-black/60 backdrop-blur-md rounded-xl p-4 border border-white/10">
+                    <p className="text-white text-[16px] font-medium leading-snug">
+                      "AutoSub helps us automate 90% of our subtitle workflow."
+                    </p>
+                  </div>
+                </div>
+                {/* Progress bar */}
+                <div className="absolute bottom-6 left-6 right-6 flex items-center gap-3">
+                  <div className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
+                    <div className="h-full w-[45%] bg-white rounded-full"></div>
+                  </div>
+                  <span className="text-white text-[11px] font-medium">AI Transcribing...</span>
+                </div>
+                <svg className="absolute top-4 right-4 w-5 h-5 text-white/50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.09 6.26L20.5 9l-5 4.26L16.82 20 12 16.27 7.18 20l1.32-6.74L3.5 9l6.41-.74z" /></svg>
+              </div>
+
+              {/* Floating card */}
+              <div className="absolute -bottom-6 -left-12 bg-white rounded-2xl shadow-2xl p-5 border border-gray-100 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <div>
+                  <div className="text-[11px] font-medium text-gray-400 mb-0.5">Processing Time</div>
+                  <div className="text-[16px] font-bold text-gray-900">Under 12s</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
