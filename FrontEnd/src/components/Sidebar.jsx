@@ -32,6 +32,16 @@ const NAV_ITEMS = [
     ),
   },
   {
+    id: 'export',
+    label: 'Export',
+    to: '/export',
+    icon: (
+      <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.7}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+      </svg>
+    ),
+  },
+  {
     id: 'settings',
     label: 'Settings',
     to: '/settings',

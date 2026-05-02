@@ -3,6 +3,7 @@ import HomePage from './pages/HomePage'
 import UploadPage from './pages/UploadPage'
 import ProcessingPage from './pages/ProcessingPage'
 import DashboardPage from './pages/DashboardPage'
+import ExportPage from './pages/ExportPage'
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/processing" element={<ProcessingPage />} />
+        <Route path="/export" element={<ExportPage />} />
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
