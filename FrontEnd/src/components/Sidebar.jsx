@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import Logo from './Logo'
 
 const NAV_ITEMS = [
   {
@@ -59,14 +60,9 @@ export default function Sidebar({ active }) {
     <aside className="w-[210px] flex-shrink-0 border-r border-gray-100 flex flex-col bg-white h-full">
       {/* Logo */}
       <div className="px-5 pt-5 pb-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-gray-900 rounded-lg flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z" />
-            </svg>
-          </div>
-          <span className="text-[15px] font-bold text-gray-900 tracking-tight">AutoSub</span>
-        </div>
+        <Link to="/">
+          <Logo />
+        </Link>
       </div>
 
       {/* Navigation */}

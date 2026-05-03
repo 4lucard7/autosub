@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import Logo from '../components/Logo'
 
 /* ── Navbar ── */
 function Navbar() {
@@ -6,14 +7,9 @@ function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-gray-900 rounded-lg flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z" />
-            </svg>
-          </div>
-          <span className="text-[15px] font-bold text-gray-900 tracking-tight">AutoSub</span>
-        </div>
+        <Link to="/">
+          <Logo />
+        </Link>
 
         {/* Center links */}
         <div className="hidden md:flex items-center gap-8">
@@ -25,9 +21,12 @@ function Navbar() {
 
         {/* Right */}
         <div className="flex items-center gap-3">
-          <button className="text-[13px] font-medium text-gray-500 hover:text-gray-900 transition-colors px-3 py-1.5">
+          <Link 
+            to="/login"
+            className="text-[13px] font-medium text-gray-500 hover:text-gray-900 transition-colors px-3 py-1.5"
+          >
             Log in
-          </button>
+          </Link>
           <Link
             to="/upload"
             className="text-[13px] font-semibold text-white bg-gray-900 hover:bg-gray-800 px-4 py-2 rounded-lg transition-all active:scale-[0.97]"
@@ -51,7 +50,7 @@ function Hero() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2.5 px-1.5 py-1.5 bg-white border border-gray-100 rounded-full shadow-sm mb-8">
               <span className="px-2.5 py-0.5 bg-gray-100 text-[11px] font-semibold text-gray-800 rounded-full uppercase tracking-wide">New</span>
-              <span className="text-[12px] font-medium text-gray-500 pr-3">V3 Engine is now live with 99.8% accuracy</span>
+              <span className="text-[12px] font-medium text-gray-500 pr-3">Initial version is now live powered by FastWhisper</span>
             </div>
 
             {/* Heading */}
@@ -326,14 +325,9 @@ function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-7 h-7 bg-gray-900 rounded-lg flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z" />
-                </svg>
-              </div>
-              <span className="text-[15px] font-bold text-gray-900">AutoSub</span>
-            </div>
+            <Link to="/" className="inline-block mb-3">
+              <Logo />
+            </Link>
             <p className="text-[12px] text-gray-400 leading-relaxed max-w-[200px]">
               AI-powered subtitle generation for creators worldwide.
             </p>
