@@ -4,6 +4,8 @@ import UploadPage from './pages/UploadPage'
 import ProcessingPage from './pages/ProcessingPage'
 import DashboardPage from './pages/DashboardPage'
 import ExportPage from './pages/ExportPage'
+import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
 
 export default function App() {
   return (
@@ -14,6 +16,8 @@ export default function App() {
         <Route path="/upload" element={<UploadPage />} />
         <Route path="/processing" element={<ProcessingPage />} />
         <Route path="/export" element={<ExportPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

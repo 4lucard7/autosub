@@ -1,17 +1,13 @@
 import { Link } from 'react-router-dom'
+import Logo from './Logo'
 
 export default function TopBar({ title = 'New Project', breadcrumb }) {
   return (
     <header className="h-[52px] flex-shrink-0 border-b border-gray-100 flex items-center px-6 gap-3 bg-white">
       {/* Small brand mark */}
-      <div className="flex items-center gap-2">
-        <div className="w-5 h-5 bg-gray-900 rounded flex items-center justify-center">
-          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z" />
-          </svg>
-        </div>
-        <span className="text-[13px] font-semibold text-gray-800">AutoSub</span>
-      </div>
+      <Link to="/">
+        <Logo boxSize={20} iconSize={12} className="opacity-90" />
+      </Link>
 
       {/* Separator */}
       <span className="text-gray-300 text-sm select-none">/</span>
