@@ -5,9 +5,7 @@ venv
 .env.production
 .env.development
 .env.test
-.env.example
 .env.prod
 .env.dev
 .env.test
-.env.example
 storage

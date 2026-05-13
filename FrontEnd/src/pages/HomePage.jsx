@@ -28,7 +28,7 @@ function Navbar() {
             Log in
           </Link>
           <Link
-            to="/upload"
+            to="/login"
             className="text-[13px] font-semibold text-white bg-gray-900 hover:bg-gray-800 px-4 py-2 rounded-lg transition-all active:scale-[0.97]"
           >
             Get Started
