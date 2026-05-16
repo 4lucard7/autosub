@@ -1,7 +1,11 @@
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import TopBar from '../components/TopBar'
+import { uploadVideo } from '../api/videos.api'
+import { createJob } from '../api/jobs.api'
+import { getUser } from '../api/auth.utils'
 
 /* ── Language lists ── */
 const LANGUAGES = [
@@ -55,10 +59,44 @@ function FileIcon() {
 /*  Upload Page                                                           */
 /* ════════════════════════════════════════════════════════════════════════ */
 export default function UploadPage() {
+  const navigate = useNavigate()
   const [files, setFiles] = useState([])
   const [sourceLanguage, setSourceLanguage] = useState('Auto Detect (Recommended)')
   const [targetLanguage, setTargetLanguage] = useState('French')
   const [burnSubtitles, setBurnSubtitles] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [error, setError] = useState('')
+  const [jobId, setJobId] = useState(null)
+
+  const handleStartProcessing = async () => {
+    if (files.length === 0) return
+    setIsProcessing(true)
+    setError('')
+    try {
+      const user = getUser()
+      const userId = user?.sub || user?.id || user?.email || 'unknown'
+
+      // Step 1: Upload the first selected video file
+      const uploadResult = await uploadVideo(files[0].file, userId)
+      // Backend returns: { message, video: { video_path, ... } }
+      const videoPath = uploadResult.video?.video_path || uploadResult.file_path || uploadResult.path
+
+      // Step 2: Create a processing job with the returned path
+      const jobResult = await createJob(videoPath, userId)
+      setJobId(jobResult.job_id)
+
+      // Step 3: Go to dashboard to watch progress
+      setTimeout(() => navigate('/dashboard'), 1500)
+    } catch (err) {
+      const detail = err.response?.data?.detail
+      // Pydantic 422 errors come as an array of objects — stringify them
+      const msg = Array.isArray(detail)
+        ? detail.map(e => `${e.loc?.slice(-1)[0]}: ${e.msg}`).join(', ')
+        : (typeof detail === 'string' ? detail : 'Upload failed. Please try again.')
+      setError(msg)
+      setIsProcessing(false)
+    }
+  }
 
   const onDrop = useCallback((acceptedFiles) => {
     setFiles(prev => [
@@ -278,9 +316,24 @@ export default function UploadPage() {
                   </label>
                 </div>
 
+                {/* Error message */}
+                {error && (
+                  <div className="mb-3 px-3 py-2 bg-red-50 border border-red-100 rounded-lg text-[12px] text-red-500">
+                    {error}
+                  </div>
+                )}
+
+                {/* Success message */}
+                {jobId && (
+                  <div className="mb-3 px-3 py-2 bg-emerald-50 border border-emerald-100 rounded-lg text-[12px] text-emerald-600">
+                    ✓ Job started! Redirecting to dashboard…
+                  </div>
+                )}
+
                 {/* Start Processing */}
                 <button
-                  disabled={files.length === 0}
+                  onClick={handleStartProcessing}
+                  disabled={files.length === 0 || isProcessing}
                   className="
                     w-full py-3 rounded-xl text-[13px] font-semibold text-white
                     bg-gradient-to-b from-gray-700 to-gray-900
@@ -288,9 +341,18 @@ export default function UploadPage() {
                     disabled:opacity-40 disabled:cursor-not-allowed
                     active:scale-[0.98] transition-all duration-150
                     shadow-lg shadow-gray-900/20
+                    flex items-center justify-center gap-2
                   "
                 >
-                  Start Processing
+                  {isProcessing ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      Uploading…
+                    </>
+                  ) : 'Start Processing'}
                 </button>
               </div>
             </div>
