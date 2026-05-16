@@ -1,7 +1,29 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo'
+import { registerUser } from '../api/auth.api'
 
 export default function SignupPage() {
+  const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      await registerUser(email, password)
+      navigate('/login')
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Registration failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50/50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -20,7 +42,7 @@ export default function SignupPage() {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[440px]">
         <div className="bg-white py-10 px-6 shadow-2xl shadow-gray-200/50 border border-gray-100 sm:rounded-2xl sm:px-10">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="first-name" className="block text-sm font-semibold text-gray-700">
@@ -66,6 +88,8 @@ export default function SignupPage() {
                   autoComplete="email"
                   required
                   placeholder="name@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/5 focus:border-gray-900 transition-all text-sm"
                 />
               </div>
@@ -82,6 +106,8 @@ export default function SignupPage() {
                   type="password"
                   required
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/5 focus:border-gray-900 transition-all text-sm"
                 />
               </div>
@@ -114,12 +140,14 @@ export default function SignupPage() {
               </div>
             </div>
 
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-xl shadow-gray-900/10 text-sm font-bold text-white bg-gradient-to-r from-gray-900 to-gray-700 hover:from-gray-800 hover:to-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-all active:scale-[0.98]"
+                disabled={loading}
+                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-xl shadow-gray-900/10 text-sm font-bold text-white bg-gradient-to-r from-gray-900 to-gray-700 hover:from-gray-800 hover:to-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-all active:scale-[0.98] disabled:opacity-60"
               >
-                Create Account
+                {loading ? 'Creating account...' : 'Create Account'}
               </button>
             </div>
           </form>

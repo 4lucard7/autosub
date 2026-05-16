@@ -9,3 +9,5 @@ venv
 .env.dev
 .env.test
 storage
+__pycache__
+
