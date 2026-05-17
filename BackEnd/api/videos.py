@@ -10,9 +10,9 @@ from datetime import datetime, timezone
 router = APIRouter()
 
 # Use the same storage base as main.py
-STORAGE_BASE = os.path.join(os.path.dirname(__file__), "..", "..", "storage")
+ABS_PATH = os.path.abspath(os.path.dirname(__file__))
+STORAGE_BASE = os.path.abspath(os.path.join(ABS_PATH, "..", "..", "storage"))
 UPLOAD_FOLDER = os.path.join(STORAGE_BASE, "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @router.post("/videos/upload", response_model=dict)
 async def upload_video(
@@ -22,11 +22,13 @@ async def upload_video(
     """
     Upload a video file, save it to disk, and create a DB record.
     """
+    # Ensure upload folder exists at the moment of upload
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    
     # Generate a unique video ID
     video_id = str(uuid.uuid4())
     
     # Create a safe filename and path
-    # (In a real app, you might want to sanitize the filename or just use the UUID)
     extension = os.path.splitext(file.filename)[1]
     safe_filename = f"{video_id}{extension}"
     video_path = os.path.join(UPLOAD_FOLDER, safe_filename)

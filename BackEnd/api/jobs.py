@@ -55,3 +55,14 @@ async def get_user_jobs(user_id: str):
     jobs = await jobs_cursor.to_list(length=100)
     
     return jobs_serializer(jobs)
+
+@router.delete("/jobs/{job_id}")
+async def delete_job(job_id: str):
+    """
+    Deletes a specific job from the database.
+    """
+    result = await db.jobs.delete_one({"job_id": job_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    return {"message": "Job deleted successfully"}
