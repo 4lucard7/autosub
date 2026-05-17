@@ -1,7 +1,4 @@
 import os
-from services.audio_extractor import extract_audio
-from services.transcription import transcribe_audio
-from services.translation_manager import translate_text
 from models.Job import JobStatus
 from workers.DB import db
 
@@ -15,6 +12,11 @@ async def process_video_task(job_id: str, video_path: str, target_lang: str = "f
     Updates the database with the final status.
     """
     try:
+        # Lazy imports — so missing ML packages don't crash server startup
+        from services.audio_extractor import extract_audio
+        from services.transcription import transcribe_audio
+        from services.translation_manager import translate_text
+
         # Update status to PROCESSING
         await db.jobs.update_one(
             {"job_id": job_id},
@@ -27,11 +29,40 @@ async def process_video_task(job_id: str, video_path: str, target_lang: str = "f
         # 1. Extract Audio
         extract_audio(video_path, audio_path)
 
-        # 2. Transcription
-        original_text = transcribe_audio(audio_path)
+        # 2. Transcription (Returns segments with timestamps)
+        from services.transcription import transcribe_audio
+        from faster_whisper import WhisperModel
+        
+        # We manually iterate here to update the DB live
+        model = WhisperModel("base", compute_type="int8")
+        segments_generator, info = model.transcribe(audio_path)
+        
+        segments = []
+        for segment in segments_generator:
+            seg_data = {
+                "start": segment.start,
+                "end": segment.end,
+                "text": segment.text
+            }
+            segments.append(seg_data)
+            
+            # Live Update: Push current segments to DB so frontend can show them
+            await db.jobs.update_one(
+                {"job_id": job_id},
+                {"$set": {"transcribed_segments": segments}}
+            )
 
-        # 3. Translation
-        translated_text = translate_text(original_text, target_lang=target_lang)
+        # 3. Translation (Translates text inside segments)
+        from services.translation_manager import translate_segments
+        translated_segments = translate_segments(segments, target_lang=target_lang)
+
+        # 4. Generate SRT File
+        from services.srt_generator import generate_srt
+        srt_content = generate_srt(translated_segments)
+        srt_path = os.path.join(OUTPUT_FOLDER, f"{job_id}.srt")
+        
+        with open(srt_path, "w", encoding="utf-8") as f:
+            f.write(srt_content)
 
         # Update status to COMPLETED and save results
         await db.jobs.update_one(
@@ -39,12 +70,11 @@ async def process_video_task(job_id: str, video_path: str, target_lang: str = "f
             {"$set": {
                 "status": JobStatus.COMPLETED,
                 "audio_path": audio_path,
-                "original_text": original_text,
-                "translated_text": translated_text,
+                "srt_path": srt_path,
                 "target_lang": target_lang
             }}
         )
-        
+
     except Exception as e:
         # If any error occurs, mark job as FAILED
         await db.jobs.update_one(

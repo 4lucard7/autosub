@@ -4,9 +4,17 @@ def generate_srt(segments):
     """
     srt_content = ""
     for i, segment in enumerate(segments, start=1):
-        start = format_timestamp(segment.start)
-        end = format_timestamp(segment.end)
-        srt_content += f"{i}\n{start} --> {end}\n{segment.text.strip()}\n\n"
+        # Handle both objects (Whisper) and dicts (our internal format)
+        if isinstance(segment, dict):
+            start = format_timestamp(segment.get('start', 0))
+            end = format_timestamp(segment.get('end', 0))
+            text = segment.get('text', '').strip()
+        else:
+            start = format_timestamp(segment.start)
+            end = format_timestamp(segment.end)
+            text = segment.text.strip()
+            
+        srt_content += f"{i}\n{start} --> {end}\n{text}\n\n"
     return srt_content
 
 def format_timestamp(seconds):
