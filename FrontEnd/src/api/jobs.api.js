@@ -22,3 +22,9 @@ export const getUserJobs = async (userId) => {
   const response = await api.get(`/jobs/?user_id=${userId}`);
   return response.data;
 };
+
+// Delete a specific job
+export const deleteJob = async (jobId) => {
+  const response = await api.delete(`/jobs/${jobId}`);
+  return response.data;
+};
