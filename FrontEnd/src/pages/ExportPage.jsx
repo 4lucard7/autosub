@@ -1,11 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import TopBar from '../components/TopBar'
+import { getJobStatus } from '../api/jobs.api'
 
 export default function ExportPage() {
+  const { jobId } = useParams()
+  const navigate = useNavigate()
+  
+  const [job, setJob] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [exportFormat, setExportFormat] = useState('srt')
   const [includeTimestamps, setIncludeTimestamps] = useState(true)
   const [addBom, setAddBom] = useState(false)
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      if (!jobId) return;
+      try {
+        const data = await getJobStatus(jobId)
+        setJob(data)
+        if (data.status !== 'completed') {
+          // If not completed, send back to processing
+          navigate(`/processing/${jobId}`)
+        }
+      } catch (err) {
+        console.error("Failed to load job", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchJob()
+  }, [jobId, navigate])
+
+  const fileName = job?.video_path ? job.video_path.split(/[\\/]/).pop() : 'Loading...'
 
   return (
     <div className="flex h-screen bg-white font-sans overflow-hidden">
@@ -109,8 +137,9 @@ export default function ExportPage() {
                     <div className="relative">
                       <select className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-4 py-3 text-[14px] text-gray-900 pr-10 focus:outline-none focus:ring-2 focus:ring-gray-200 cursor-pointer">
                         <option>English (Original)</option>
-                        <option>French (Translated)</option>
-                        <option>Spanish (Translated)</option>
+                        {job?.target_lang && (
+                          <option>{job.target_lang} (Translated)</option>
+                        )}
                       </select>
                       <svg className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </div>
@@ -151,7 +180,39 @@ export default function ExportPage() {
               </div>
 
               {/* Right Column - Summary & Preview */}
-              <div className="w-[380px] flex-shrink-0 space-y-6">
+              <div className="w-[420px] flex-shrink-0 space-y-6">
+                {/* Video Player Preview */}
+                <div className="bg-[#0f172a] rounded-2xl overflow-hidden aspect-video relative group shadow-2xl border border-gray-800">
+                  {job?.video_path ? (
+                    <video 
+                      src={job.video_path} 
+                      controls 
+                      className="w-full h-full object-contain"
+                      crossOrigin="anonymous"
+                    >
+                      {job?.srt_path && (
+                        <track 
+                          label={job?.target_lang || "Original"} 
+                          kind="subtitles" 
+                          srcLang="en" 
+                          src={job.srt_path} 
+                          default 
+                        />
+                      )}
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-500 text-[13px]">
+                      Loading video player...
+                    </div>
+                  )}
+                  <div className="absolute top-4 left-4 pointer-events-none">
+                    <span className="px-2 py-1 rounded bg-black/60 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                      Live Preview
+                    </span>
+                  </div>
+                </div>
+
                 {/* Project Summary */}
                 <div className="bg-gray-50 rounded-2xl p-6">
                   <div className="flex items-center gap-2 mb-5">
@@ -162,18 +223,18 @@ export default function ExportPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-gray-200/60 pb-3">
                       <span className="text-[13px] text-gray-500">File Name</span>
-                      <span className="text-[13px] font-semibold text-gray-900">Product_Demo_Q4_Final.mp4</span>
+                      <span className="text-[13px] font-semibold text-gray-900 truncate max-w-[150px]" title={fileName}>{fileName}</span>
                     </div>
                     <div className="flex items-center justify-between border-b border-gray-200/60 pb-3">
                       <span className="text-[13px] text-gray-500">Video Length</span>
                       <span className="text-[13px] font-semibold text-gray-900 flex items-center gap-1.5">
                         <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        04:22
+                        N/A
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[13px] text-gray-500">Total Segments</span>
-                      <span className="text-[13px] font-semibold text-gray-900">148 Lines</span>
+                      <span className="text-[13px] text-gray-500">Target Lang</span>
+                      <span className="text-[13px] font-semibold text-gray-900">{job?.target_lang || 'N/A'}</span>
                     </div>
                   </div>
                 </div>

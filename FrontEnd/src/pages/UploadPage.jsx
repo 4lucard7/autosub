@@ -85,8 +85,8 @@ export default function UploadPage() {
       const jobResult = await createJob(videoPath, userId)
       setJobId(jobResult.job_id)
 
-      // Step 3: Go to dashboard to watch progress
-      setTimeout(() => navigate('/dashboard'), 1500)
+      // Step 3: Go to processing page to watch progress
+      setTimeout(() => navigate(`/processing/${jobResult.job_id}`), 1500)
     } catch (err) {
       const detail = err.response?.data?.detail
       // Pydantic 422 errors come as an array of objects — stringify them
