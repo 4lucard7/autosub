@@ -1,4 +1,5 @@
 import os
+import subprocess
 from models.Job import JobStatus
 from workers.DB import db
 
@@ -6,7 +7,24 @@ STORAGE_BASE = os.path.join(os.path.dirname(__file__), "..", "..", "storage")
 OUTPUT_FOLDER = os.path.join(STORAGE_BASE, "outputs")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-async def process_video_task(job_id: str, video_path: str, target_lang: str = "fr"):
+from services.audio_extractor import FFMPEG_BIN_PATH
+
+
+def _ensure_ffmpeg_in_path():
+    if FFMPEG_BIN_PATH not in os.environ["PATH"]:
+        os.environ["PATH"] += os.pathsep + FFMPEG_BIN_PATH
+
+
+def _build_subtitles_filter(srt_path: str) -> str:
+    safe_path = srt_path.replace('\\', '\\\\')
+    safe_path = safe_path.replace("'", "\\'")
+    safe_path = safe_path.replace(':', '\\:')
+    safe_path = safe_path.replace(',', '\\,')
+    safe_path = safe_path.replace('=', '\\=')
+    return f"subtitles=filename='{safe_path}'"
+
+
+async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool = False, target_lang: str = "fr"):
     """
     Background task to process the video: extract audio, transcribe, and translate.
     Updates the database with the final status.
@@ -14,8 +32,8 @@ async def process_video_task(job_id: str, video_path: str, target_lang: str = "f
     try:
         # Lazy imports — so missing ML packages don't crash server startup
         from services.audio_extractor import extract_audio
-        from services.transcription import transcribe_audio
-        from services.translation_manager import translate_text
+        from services.translation_manager import translate_segments
+        from faster_whisper import WhisperModel
 
         # Update status to PROCESSING
         await db.jobs.update_one(
@@ -30,10 +48,6 @@ async def process_video_task(job_id: str, video_path: str, target_lang: str = "f
         extract_audio(video_path, audio_path)
 
         # 2. Transcription (Returns segments with timestamps)
-        from services.transcription import transcribe_audio
-        from faster_whisper import WhisperModel
-        
-        # We manually iterate here to update the DB live
         model = WhisperModel("base", compute_type="int8")
         segments_generator, info = model.transcribe(audio_path)
         
@@ -53,7 +67,6 @@ async def process_video_task(job_id: str, video_path: str, target_lang: str = "f
             )
 
         # 3. Translation (Translates text inside segments)
-        from services.translation_manager import translate_segments
         translated_segments = translate_segments(segments, target_lang=target_lang)
 
         # 4. Generate SRT File
@@ -64,6 +77,20 @@ async def process_video_task(job_id: str, video_path: str, target_lang: str = "f
         with open(srt_path, "w", encoding="utf-8") as f:
             f.write(srt_content)
 
+        burned_video_path = None
+        if burn_subtitles:
+            burned_video_path = os.path.join(OUTPUT_FOLDER, f"{job_id}_burned.mp4")
+            _ensure_ffmpeg_in_path()
+            try:
+                subprocess.run([
+                    "ffmpeg", "-y",
+                    "-i", video_path,
+                    "-vf", _build_subtitles_filter(srt_path),
+                    burned_video_path
+                ], check=True, capture_output=True)
+            except subprocess.CalledProcessError as e:
+                raise RuntimeError(f"Failed to burn subtitles: {e.stderr.decode()}")
+
         # Update status to COMPLETED and save results
         await db.jobs.update_one(
             {"job_id": job_id},
@@ -71,6 +98,7 @@ async def process_video_task(job_id: str, video_path: str, target_lang: str = "f
                 "status": JobStatus.COMPLETED,
                 "audio_path": audio_path,
                 "srt_path": srt_path,
+                "burned_video_path": burned_video_path,
                 "target_lang": target_lang
             }}
         )

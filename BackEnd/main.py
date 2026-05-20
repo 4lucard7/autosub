@@ -1,5 +1,7 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from api.auth import router as auth_router
 from api.jobs import router as jobs_router
 from api.videos import router as videos_router
@@ -13,6 +15,19 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+ABS_PATH = os.path.abspath(os.path.dirname(__file__))
+STORAGE_BASE = os.path.abspath(os.path.join(ABS_PATH, "..", "storage"))
+app.mount(
+    "/storage/uploads",
+    StaticFiles(directory=os.path.join(STORAGE_BASE, "uploads")),
+    name="uploads"
+)
+app.mount(
+    "/storage/outputs",
+    StaticFiles(directory=os.path.join(STORAGE_BASE, "outputs")),
+    name="outputs"
 )
 
 # Include all the modular routers
