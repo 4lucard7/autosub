@@ -15,11 +15,10 @@ export default function FilesPage() {
       const user = getUser()
       const userId = user?.sub || user?.id || user?.email || 'unknown'
       const data = await getUserJobs(userId)
-      // Sort newest first
       const sortedJobs = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       setJobs(sortedJobs)
     } catch (err) {
-      console.error("Failed to load jobs", err)
+      console.error('Failed to load jobs', err)
     } finally {
       setLoading(false)
     }
@@ -38,19 +37,17 @@ export default function FilesPage() {
   }
 
   const handleDelete = async (e, jobId) => {
-    e.stopPropagation(); // Prevent row click
-    if (window.confirm("Are you sure you want to delete this project?")) {
+    e.stopPropagation()
+    if (window.confirm('Are you sure you want to delete this project?')) {
       try {
-        await deleteJob(jobId);
-        // Refresh the jobs list
-        fetchJobs();
+        await deleteJob(jobId)
+        fetchJobs()
       } catch (err) {
-        console.error("Failed to delete job", err);
-        alert("Failed to delete job");
+        console.error('Failed to delete job', err)
+        alert('Failed to delete job')
       }
     }
   }
-
   return (
     <div className="flex h-screen bg-gray-50/30 font-sans overflow-hidden">
       <Sidebar active="files" />
