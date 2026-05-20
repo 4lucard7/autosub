@@ -1,17 +1,26 @@
-from faster_whisper import WhisperModel
-
-# load model globally so it doesn't reload on every request
-model = WhisperModel("base", compute_type="int8")
-
 def transcribe_audio(audio_path):
-    # transcribe the specific audio file passed to the function
+    try:
+        from faster_whisper import WhisperModel
+    except ImportError:
+        raise RuntimeError(
+            "faster-whisper is not installed. "
+            "Run: pip install faster-whisper"
+        )
+
+    # Load model on first use — "base" is fast; swap for "small" or "medium" for better accuracy
+    model = WhisperModel("base", compute_type="int8")
+
     segments, info = model.transcribe(audio_path)
 
     print("Language identified:", info.language)
 
-    full_text = ""
+    results = []
     for segment in segments:
         print(f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}")
-        full_text += segment.text
+        results.append({
+            "start": segment.start,
+            "end": segment.end,
+            "text": segment.text
+        })
 
-    return full_text
+    return results
