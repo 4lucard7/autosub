@@ -14,6 +14,10 @@ class Job(BaseModel):
     user_id: str
     video_path: str
     audio_path: Optional[str] = None
+    srt_path: Optional[str] = None
+    txt_path: Optional[str] = None
+    burned_video_path: Optional[str] = None
+    burn_subtitles: bool = False
     status: JobStatus = JobStatus.PENDING
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

@@ -6,8 +6,9 @@ class JobCreate(BaseModel):
 
 def job_serializer(job) -> dict:
     # Convert absolute paths to public URLs
-    def to_url(path):
-        if not path: return None
+    def _storage_url(path):
+        if not path:
+            return None
         # Replace backslashes for URL consistency
         rel_path = path.replace("\\", "/").split("/storage/")[-1]
         return f"http://127.0.0.1:8000/storage/{rel_path}"
@@ -16,11 +17,14 @@ def job_serializer(job) -> dict:
         "id": str(job["_id"]),
         "job_id": job.get("job_id"),
         "user_id": job.get("user_id"),
-        "video_path": to_url(job.get("video_path")),
-        "audio_path": to_url(job.get("audio_path")),
-        "srt_path": to_url(job.get("srt_path")),
-        "status": job.get("status"),
+        "video_path": _storage_url(job.get("video_path")),
+        "audio_path": _storage_url(job.get("audio_path")),
+        "srt_path": _storage_url(job.get("srt_path")),
+        "txt_path": _storage_url(job.get("txt_path")),
+        "burned_video_path": _storage_url(job.get("burned_video_path")),
         "error_message": job.get("error_message"),
+        "status": job.get("status"),
+        
         "target_lang": job.get("target_lang"),
         "transcribed_segments": job.get("transcribed_segments", []),
         "created_at": job.get("created_at"),
