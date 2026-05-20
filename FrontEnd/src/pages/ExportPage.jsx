@@ -4,6 +4,15 @@ import Sidebar from '../components/Sidebar'
 import TopBar from '../components/TopBar'
 import { getJobStatus } from '../api/jobs.api'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || ''
+
+function resolveBackendUrl(path) {
+  if (!path) return null
+  if (path.startsWith('http://') || path.startsWith('https://')) return path
+  if (path.startsWith('/')) return `${API_BASE_URL}${path}`
+  return `${API_BASE_URL}/${path}`
+}
+
 export default function ExportPage() {
   const { jobId } = useParams()
   const navigate = useNavigate()
@@ -185,7 +194,7 @@ export default function ExportPage() {
                 <div className="bg-[#0f172a] rounded-2xl overflow-hidden aspect-video relative group shadow-2xl border border-gray-800">
                   {job?.video_path ? (
                     <video 
-                      src={job.video_path} 
+                      src={resolveBackendUrl(job.burned_video_path || job.video_path)} 
                       controls 
                       className="w-full h-full object-contain"
                       crossOrigin="anonymous"
@@ -195,7 +204,7 @@ export default function ExportPage() {
                           label={job?.target_lang || "Original"} 
                           kind="subtitles" 
                           srcLang="en" 
-                          src={job.srt_path} 
+                          src={resolveBackendUrl(job.srt_path)} 
                           default 
                         />
                       )}

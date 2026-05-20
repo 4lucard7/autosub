@@ -82,7 +82,7 @@ export default function UploadPage() {
       const videoPath = uploadResult.video?.video_path || uploadResult.file_path || uploadResult.path
 
       // Step 2: Create a processing job with the returned path
-      const jobResult = await createJob(videoPath, userId)
+      const jobResult = await createJob(videoPath, userId, burnSubtitles)
       setJobId(jobResult.job_id)
 
       // Step 3: Go to processing page to watch progress
