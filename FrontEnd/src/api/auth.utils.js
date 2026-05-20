@@ -1,15 +1,17 @@
-// Centralized auth helpers
-export const getToken = () => localStorage.getItem('token')
-export const getUser = () => {
-  const token = getToken()
-  if (!token) return null
+export function isLoggedIn() {
+  return !!localStorage.getItem('token')
+}
+
+export function getUser() {
   try {
-    // Decode JWT payload (base64) — no library needed
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload
-  } catch {
+    const raw = localStorage.getItem('user')
+    return raw ? JSON.parse(raw) : null
+  } catch (e) {
     return null
   }
 }
-export const isLoggedIn = () => !!getToken()
-export const logout = () => localStorage.removeItem('token')
+
+export function logout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+}

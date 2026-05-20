@@ -15,7 +15,6 @@ class Job(BaseModel):
     video_path: str
     audio_path: Optional[str] = None
     srt_path: Optional[str] = None
-    txt_path: Optional[str] = None
     burned_video_path: Optional[str] = None
     burn_subtitles: bool = False
     status: JobStatus = JobStatus.PENDING
