@@ -15,8 +15,10 @@ class Job(BaseModel):
     video_path: str
     audio_path: Optional[str] = None
     srt_path: Optional[str] = None
+    ass_path: Optional[str] = None
     burned_video_path: Optional[str] = None
     burn_subtitles: bool = False
+    subtitle_style: Optional[dict] = None
     status: JobStatus = JobStatus.PENDING
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
