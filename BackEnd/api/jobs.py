@@ -18,6 +18,8 @@ async def create_job(job_data: JobCreate, background_tasks: BackgroundTasks):
         job_id=job_id,
         user_id=job_data.user_id,
         video_path=job_data.video_path,
+        burn_subtitles=job_data.burn_subtitles,
+        subtitle_style=job_data.subtitle_style.dict() if job_data.subtitle_style else None,
         status=JobStatus.PENDING,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc)
@@ -28,7 +30,13 @@ async def create_job(job_data: JobCreate, background_tasks: BackgroundTasks):
     
     # Trigger the background processing
     from workers.process_video import process_video_task
-    background_tasks.add_task(process_video_task, job_id=job_id, video_path=job_data.video_path)
+    background_tasks.add_task(
+        process_video_task,
+        job_id=job_id,
+        video_path=job_data.video_path,
+        burn_subtitles=job_data.burn_subtitles,
+        subtitle_style=job_data.subtitle_style.dict() if job_data.subtitle_style else None
+    )
     
     return {
         "message": "Job created successfully",
