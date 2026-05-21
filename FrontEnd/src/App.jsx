@@ -8,6 +8,7 @@ import FilesPage from './pages/FilesPage'
 import SettingsPage from './pages/SettingsPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import SubtitleStylingStudio from './pages/SubtitleStylingStudio'
 import { isLoggedIn } from './api/auth.utils'
 
 // Protect routes that require login
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
         <Route path="/upload" element={<PrivateRoute><UploadPage /></PrivateRoute>} />
         <Route path="/processing/:jobId" element={<PrivateRoute><ProcessingPage /></PrivateRoute>} />
+        <Route path="/studio/:jobId" element={<PrivateRoute><SubtitleStylingStudio /></PrivateRoute>} />
         <Route path="/export" element={<PrivateRoute><ExportPage /></PrivateRoute>} />
         <Route path="/export/:jobId" element={<PrivateRoute><ExportPage /></PrivateRoute>} />
         <Route path="/files" element={<PrivateRoute><FilesPage /></PrivateRoute>} />

@@ -271,10 +271,10 @@ export default function ExportPage() {
 
                 {/* Download Button */}
                 <div className="pt-2">
-                  <button className="w-full flex items-center justify-center gap-2.5 bg-gray-900 text-white font-semibold text-[14px] py-4 rounded-xl hover:bg-gray-800 active:scale-[0.98] transition-all shadow-xl shadow-gray-900/10 mb-3">
+                  <a href={`${API_BASE_URL}/jobs/${jobId}/download`} download className="w-full flex items-center justify-center gap-2.5 bg-gray-900 text-white font-semibold text-[14px] py-4 rounded-xl hover:bg-gray-800 active:scale-[0.98] transition-all shadow-xl shadow-gray-900/10 mb-3">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                    Download .{exportFormat} File
-                  </button>
+                    Download Burned Video
+                  </a>
                   <p className="text-[11px] text-gray-400 text-center px-4 leading-relaxed">
                     Your subtitles will download directly to your default browser folder.
                   </p>
