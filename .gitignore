@@ -1,13 +1,28 @@
 .env
-__pycache__/*
-venv
-.env.local
-.env.production
-.env.development
-.env.test
-.env.prod
-.env.dev
-.env.test
-storage
-__pycache__
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.python-version
+
+# Virtual environments
+venv/
+BackEnd/venv/
+BackEnd/.venv/
+.env/ 
+
+# Storage and generated files
+storage/
+*.log
+
+# IDE/editor files
+.vscode/
+.idea/
+.DS_Store
+
+# Node dependencies
+frontend/node_modules/
 

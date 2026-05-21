@@ -1,11 +1,13 @@
 import api from './axios';
 
 // Create a new background video processing job
-export const createJob = async (videoPath, userId) => {
+export const createJob = async (videoPath, userId, burnSubtitles = false, subtitleStyle = null) => {
   // The data matches the `JobCreate` pydantic schema in your Python backend
   const response = await api.post('/jobs/', { 
     video_path: videoPath, 
-    user_id: userId 
+    user_id: userId,
+    burn_subtitles: burnSubtitles,
+    subtitle_style: subtitleStyle
   });
   return response.data; 
 };
@@ -20,5 +22,11 @@ export const getJobStatus = async (jobId) => {
 export const getUserJobs = async (userId) => {
   // Using query parameters as expected by `def get_user_jobs(user_id: str):`
   const response = await api.get(`/jobs/?user_id=${userId}`);
+  return response.data;
+};
+
+// Delete a specific job
+export const deleteJob = async (jobId) => {
+  const response = await api.delete(`/jobs/${jobId}`);
   return response.data;
 };
