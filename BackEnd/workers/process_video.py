@@ -15,8 +15,8 @@ def _ensure_ffmpeg_in_path():
         os.environ["PATH"] += os.pathsep + FFMPEG_BIN_PATH
 
 
-def _build_subtitles_filter(srt_path: str) -> str:
-    safe_path = srt_path.replace('\\', '\\\\')
+def _build_subtitles_filter(path: str) -> str:
+    safe_path = path.replace('\\', '\\\\')
     safe_path = safe_path.replace("'", "\\'")
     safe_path = safe_path.replace(':', '\\:')
     safe_path = safe_path.replace(',', '\\,')
@@ -24,7 +24,7 @@ def _build_subtitles_filter(srt_path: str) -> str:
     return f"subtitles=filename='{safe_path}'"
 
 
-async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool = False, target_lang: str = "fr"):
+async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool = False, target_lang: str = "fr", subtitle_style: dict = None):
     """
     Background task to process the video: extract audio, transcribe, and translate.
     Updates the database with the final status.
@@ -77,15 +77,26 @@ async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool 
         with open(srt_path, "w", encoding="utf-8") as f:
             f.write(srt_content)
 
+        # 4b. Generate ASS Subtitle File if subtitle styling is provided
+        ass_path = None
+        if subtitle_style:
+            from services.ass_generator import generate_ass
+            ass_content = generate_ass(translated_segments, subtitle_style)
+            ass_path = os.path.join(OUTPUT_FOLDER, f"{job_id}.ass")
+            with open(ass_path, "w", encoding="utf-8") as f:
+                f.write(ass_content)
+
         burned_video_path = None
         if burn_subtitles:
             burned_video_path = os.path.join(OUTPUT_FOLDER, f"{job_id}_burned.mp4")
             _ensure_ffmpeg_in_path()
+            # If ASS exists, use it for styled rendering, otherwise fallback to SRT
+            sub_to_burn = ass_path if ass_path and os.path.exists(ass_path) else srt_path
             try:
                 subprocess.run([
                     "ffmpeg", "-y",
                     "-i", video_path,
-                    "-vf", _build_subtitles_filter(srt_path),
+                    "-vf", _build_subtitles_filter(sub_to_burn),
                     burned_video_path
                 ], check=True, capture_output=True)
             except subprocess.CalledProcessError as e:
@@ -98,6 +109,7 @@ async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool 
                 "status": JobStatus.COMPLETED,
                 "audio_path": audio_path,
                 "srt_path": srt_path,
+                "ass_path": ass_path,
                 "burned_video_path": burned_video_path,
                 "target_lang": target_lang
             }}
