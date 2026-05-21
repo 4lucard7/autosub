@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+import os
+from fastapi.responses import FileResponse
 from models.Job import Job, JobStatus
 from schemas.job_schema import JobCreate, job_serializer, jobs_serializer
 from workers.DB import db
@@ -63,6 +65,23 @@ async def get_user_jobs(user_id: str):
     jobs = await jobs_cursor.to_list(length=100)
     
     return jobs_serializer(jobs)
+
+@router.get("/jobs/{job_id}/download")
+async def download_video(job_id: str):
+    """Download burned video file for completed job"""
+    job = await db.jobs.find_one({"job_id": job_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    burned_path = job.get("burned_video_path")
+    if not burned_path:
+        raise HTTPException(status_code=400, detail="Burned video not available")
+    # Resolve absolute path if needed
+    if not os.path.isabs(burned_path):
+        from main import STORAGE_BASE
+        burned_path = os.path.join(STORAGE_BASE, burned_path)
+    if not os.path.exists(burned_path):
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(burned_path, media_type="video/mp4", filename=os.path.basename(burned_path))
 
 @router.delete("/jobs/{job_id}")
 async def delete_job(job_id: str):
