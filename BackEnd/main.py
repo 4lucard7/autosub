@@ -1,47 +1,43 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import UploadPage from './pages/UploadPage'
-import ProcessingPage from './pages/ProcessingPage'
-import DashboardPage from './pages/DashboardPage'
-import ExportPage from './pages/ExportPage'
-import FilesPage from './pages/FilesPage'
-import SettingsPage from './pages/SettingsPage'
-import LoginPage from './pages/LoginPage'
-import SignupPage from './pages/SignupPage'
-import { isLoggedIn } from './api/auth.utils'
+import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from api.auth import router as auth_router
+from api.jobs import router as jobs_router
+from api.videos import router as videos_router
 
-// Protect routes that require login
-function PrivateRoute({ children }) {
-  return isLoggedIn() ? children : <Navigate to="/login" replace />
-}
+app = FastAPI(title="AutoSub API")
 
-// Redirect logged-in users away from public pages
-function PublicRoute({ children }) {
-  return isLoggedIn() ? <Navigate to="/dashboard" replace /> : children
-}
+# Setup CORS to allow your frontend to connect
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, restrict this to your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public — landing page can be viewed by anyone */}
-        <Route path="/" element={<HomePage />} />
+ABS_PATH = os.path.abspath(os.path.dirname(__file__))
+STORAGE_BASE = os.path.abspath(os.path.join(ABS_PATH, "..", "storage"))
+app.mount(
+    "/storage/uploads",
+    StaticFiles(directory=os.path.join(STORAGE_BASE, "uploads")),
+    name="uploads"
+)
+app.mount(
+    "/storage/outputs",
+    StaticFiles(directory=os.path.join(STORAGE_BASE, "outputs")),
+    name="outputs"
+)
 
-        {/* Auth — redirect to dashboard if already logged in */}
-        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-        <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
+# Include all the modular routers
+app.include_router(auth_router)
+app.include_router(jobs_router)
+app.include_router(videos_router)
 
-        {/* Protected Pages */}
-        <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-        <Route path="/upload" element={<PrivateRoute><UploadPage /></PrivateRoute>} />
-        <Route path="/processing/:jobId" element={<PrivateRoute><ProcessingPage /></PrivateRoute>} />
-        <Route path="/export" element={<PrivateRoute><ExportPage /></PrivateRoute>} />
-        <Route path="/export/:jobId" element={<PrivateRoute><ExportPage /></PrivateRoute>} />
-        <Route path="/files" element={<PrivateRoute><FilesPage /></PrivateRoute>} />
-        <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  )
-}
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to AutoSub API",
+        "docs": "/docs"
+    }
