@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 from typing import Optional
 from enum import Enum
 
@@ -36,7 +36,8 @@ class SubtitleStylePreset(str, Enum):
 
 class SubtitleStyle(BaseModel):
     """Complete subtitle styling configuration"""
-    
+    model_config = ConfigDict(extra="ignore")
+
     # Font properties
     font_name: str = Field(default="Arial", description="Font family name")
     font_size: int = Field(default=48, ge=8, le=200, description="Font size in pixels")
@@ -71,6 +72,34 @@ class SubtitleStyle(BaseModel):
     # Metadata
     preset: SubtitleStylePreset = Field(default=SubtitleStylePreset.CUSTOM, description="Preset name")
     name: Optional[str] = Field(default=None, description="Custom style name")
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_input(cls, values):
+        if isinstance(values, dict):
+            if "shadow" in values and "shadow_depth" not in values:
+                values["shadow_depth"] = values["shadow"]
+        return values
+
+    @field_validator("background_opacity", mode="before")
+    @classmethod
+    def normalize_background_opacity(cls, value):
+        if isinstance(value, float):
+            if 0.0 <= value <= 1.0:
+                return int(round(value * 100))
+            if value.is_integer():
+                return int(value)
+        if isinstance(value, str):
+            try:
+                cast_value = float(value)
+            except ValueError:
+                raise ValueError("background_opacity must be a number")
+            if 0.0 <= cast_value <= 1.0:
+                return int(round(cast_value * 100))
+            if cast_value.is_integer():
+                return int(cast_value)
+            return int(round(cast_value))
+        return value
 
 
 # Preset configurations

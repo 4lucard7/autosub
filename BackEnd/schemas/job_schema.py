@@ -1,31 +1,15 @@
 import os
 from pydantic import BaseModel
 from typing import Optional
+from schemas.subtitle_style_schema import SubtitleStyle as SubtitleStyleModel
 
 STORAGE_BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "storage"))
-
-class SubtitleStyle(BaseModel):
-    font_name: str = "Arial"
-    font_size: int = 28
-    text_color: str = "#FFFFFF"
-    bold: bool = False
-    italic: bool = False
-    alignment: int = 2  # 2 = Bottom Center, 8 = Top Center, etc.
-    margin_v: int = 50
-    border_style: int = 1  # 1 = Outline + Shadow, 3 = Background Box
-    outline_color: str = "#000000"
-    outline_width: float = 2.0
-    background_color: str = "#000000"
-    background_opacity: float = 0.5
-    shadow: float = 1.0
-    letter_spacing: float = 0.0
-    line_spacing: float = 0.0
 
 class JobCreate(BaseModel):
     video_path: str
     user_id: str
     burn_subtitles: bool = False
-    subtitle_style: Optional[SubtitleStyle] = None
+    subtitle_style: Optional[SubtitleStyleModel] = None
 
 
 def _storage_url(path: str | None) -> str | None:

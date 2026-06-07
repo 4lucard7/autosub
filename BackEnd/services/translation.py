@@ -1,14 +1,44 @@
 import os
 import copy
+import json
 import logging
-import requests
 from time import sleep
+import urllib.parse
+import urllib.request
+
+try:
+    import requests
+except ImportError:
+    requests = None
+
+try:
+    import httpx
+except ImportError:
+    httpx = None
 
 # Logger setup
 logger = logging.getLogger(__name__)
 
 # MyMemory Translation API (free, no API key required)
 API_URL = os.getenv("TRANSLATION_API_URL")
+
+
+def _http_get_json(url: str, params: dict, timeout: int) -> dict:
+    if requests is not None:
+        response = requests.get(url, params=params, timeout=timeout)
+        response.raise_for_status()
+        return response.json()
+
+    if httpx is not None:
+        response = httpx.get(url, params=params, timeout=timeout)
+        response.raise_for_status()
+        return response.json()
+
+    query = urllib.parse.urlencode(params)
+    full_url = f"{url}?{query}"
+    with urllib.request.urlopen(full_url, timeout=timeout) as response:
+        text = response.read().decode("utf-8")
+        return json.loads(text)
 
 # Request configuration
 REQUEST_TIMEOUT = 15  # seconds
@@ -32,10 +62,7 @@ def _send_translation_request(text: str, source_lang: str, target_lang: str) -> 
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            response = requests.get(API_URL, params=params, timeout=REQUEST_TIMEOUT)
-            response.raise_for_status()
-
-            data = response.json()
+            data = _http_get_json(API_URL, params, REQUEST_TIMEOUT)
             if data.get("responseStatus") == 200:
                 return data["responseData"]["translatedText"]
             else:
