@@ -3,7 +3,7 @@ from typing import Optional
 from enum import Enum
 
 
-class TextAlignment(str, Enum):
+class TextAlignment(int, Enum):
     """ASS subtitle alignment values (1-9, like numpad)"""
     LEFT_BOTTOM = 1
     CENTER_BOTTOM = 2
@@ -16,7 +16,7 @@ class TextAlignment(str, Enum):
     RIGHT_TOP = 9
 
 
-class BorderStyle(str, Enum):
+class BorderStyle(int, Enum):
     """ASS border style"""
     OUTLINE = 1
     OPAQUE_BOX = 3
