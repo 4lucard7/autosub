@@ -52,8 +52,8 @@ export default function ProcessingPage() {
         if (currentJob.status === 'completed') {
           setProgress(100)
           clearInterval(intervalId)
-          // Redirect to export page after a short delay so user sees 100%
-          setTimeout(() => navigate(`/export/${jobId}`), 1000)
+          // Redirect to styling studio to customize subtitles before export
+          setTimeout(() => navigate(`/studio/${jobId}`), 1500)
         } else if (currentJob.status === 'failed') {
           setProgress(0)
           clearInterval(intervalId)

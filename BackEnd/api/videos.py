@@ -54,11 +54,14 @@ async def upload_video(
     )
 
     # Save to MongoDB
-    await db.videos.insert_one(new_video.dict(by_alias=True))
+    result = await db.videos.insert_one(new_video.dict(by_alias=True))
+    
+    # Retrieve the inserted document to get the _id
+    inserted_video = await db.videos.find_one({"_id": result.inserted_id})
 
     return {
         "message": "Video uploaded successfully",
-        "video": video_serializer(new_video.dict(by_alias=True))
+        "video": video_serializer(inserted_video)
     }
 
 @router.get("/videos/{video_id}", response_model=dict)

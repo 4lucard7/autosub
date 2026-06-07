@@ -34,7 +34,7 @@ export const decodeToken = (token) => {
  * @returns {object|null} The decoded user info, or null
  */
 export function getUser() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   if (!token) return null;
   return decodeToken(token);
 }
@@ -44,7 +44,7 @@ export function getUser() {
  * @returns {boolean}
  */
 export function isLoggedIn() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   if (!token) return false;
   
   const payload = decodeToken(token);
@@ -67,5 +67,6 @@ export function isLoggedIn() {
  */
 export function logout() {
   localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
 }
 
