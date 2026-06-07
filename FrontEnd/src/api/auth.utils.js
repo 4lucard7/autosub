@@ -1,5 +1,22 @@
 export function isLoggedIn() {
-  return !!localStorage.getItem('token')
+  const token = localStorage.getItem('token')
+  if (!token) return false
+
+  // Check if the JWT is expired
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      // Token has expired — clean up
+      logout()
+      return false
+    }
+  } catch (e) {
+    // Malformed token — treat as not logged in
+    logout()
+    return false
+  }
+
+  return true
 }
 
 export function getUser() {

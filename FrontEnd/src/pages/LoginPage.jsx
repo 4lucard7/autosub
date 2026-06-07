@@ -17,6 +17,14 @@ export default function LoginPage() {
     try {
       const data = await loginUser(email, password)
       localStorage.setItem('token', data.access_token)
+      // Decode the JWT payload to store user info (email, etc.)
+      try {
+        const payload = JSON.parse(atob(data.access_token.split('.')[1]))
+        localStorage.setItem('user', JSON.stringify(payload))
+      } catch (_) {
+        // Fallback: store email from the form
+        localStorage.setItem('user', JSON.stringify({ email }))
+      }
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed')
