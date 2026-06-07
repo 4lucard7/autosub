@@ -20,6 +20,7 @@ class Job(BaseModel):
     burned_video_path: Optional[str] = None
     burn_subtitles: bool = False
     subtitle_style: Optional[dict] = None
+    source_lang: Optional[str] = "auto"
     target_lang: Optional[str] = None
     transcribed_segments: List[dict] = Field(default_factory=list)
     error_message: Optional[str] = None

@@ -324,7 +324,7 @@ def translate_text(
 # ---------------------------------------------------------------------------
 # Segment-level translation (for subtitle workflows)
 # ---------------------------------------------------------------------------
-def translate_segments(segments: list, target_lang: str = "fr") -> list:
+def translate_segments(segments: list, target_lang: str = "fr", source_lang: str = "en") -> list:
     """
     Translate a list of transcription segments while preserving timestamps.
 
@@ -338,10 +338,10 @@ def translate_segments(segments: list, target_lang: str = "fr") -> list:
 
         if isinstance(new_segment, dict):
             original_text = new_segment.get("text", "")
-            new_segment["text"] = translate_text(original_text, target_lang)
+            new_segment["text"] = translate_text(original_text, target_lang, source_lang)
         else:
             original_text = getattr(new_segment, "text", "")
-            new_segment.text = translate_text(original_text, target_lang)
+            new_segment.text = translate_text(original_text, target_lang, source_lang)
 
         translated_segments.append(new_segment)
 

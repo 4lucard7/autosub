@@ -10,6 +10,8 @@ class JobCreate(BaseModel):
     user_id: str
     burn_subtitles: bool = False
     subtitle_style: Optional[SubtitleStyleModel] = None
+    source_lang: Optional[str] = "auto"
+    target_lang: Optional[str] = "fr"
 
 
 def _storage_url(path: str | None) -> str | None:
@@ -40,6 +42,8 @@ def job_serializer(job) -> dict:
         "error_message": job.get("error_message"),
         "status": job.get("status"),
         "subtitle_style": job.get("subtitle_style"),
+        "source_lang": job.get("source_lang"),
+        "target_lang": job.get("target_lang"),
         "created_at": job.get("created_at"),
         "updated_at": job.get("updated_at")
     }

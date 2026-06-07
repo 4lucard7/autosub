@@ -22,6 +22,8 @@ async def create_job(job_data: JobCreate, background_tasks: BackgroundTasks):
         video_path=job_data.video_path,
         burn_subtitles=job_data.burn_subtitles,
         subtitle_style=job_data.subtitle_style.dict() if job_data.subtitle_style else None,
+        source_lang=job_data.source_lang,
+        target_lang=job_data.target_lang,
         status=JobStatus.PENDING,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc)
@@ -37,6 +39,8 @@ async def create_job(job_data: JobCreate, background_tasks: BackgroundTasks):
         job_id=job_id,
         video_path=job_data.video_path,
         burn_subtitles=job_data.burn_subtitles,
+        source_lang=job_data.source_lang,
+        target_lang=job_data.target_lang,
         subtitle_style=job_data.subtitle_style.dict() if job_data.subtitle_style else None
     )
     
