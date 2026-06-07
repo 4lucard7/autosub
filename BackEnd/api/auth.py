@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
+import traceback
+import logging
 from models.User import User
 from schemas import UserCreate, UserLogin
 from utils.hashing import get_hashed_password, verify_password
@@ -73,3 +75,5 @@ async def logout():
             "success": True,
             "message": "Logout successful"
         })
+
+

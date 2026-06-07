@@ -24,7 +24,7 @@ def _build_subtitles_filter(path: str) -> str:
     return f"subtitles=filename='{safe_path}'"
 
 
-async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool = False, target_lang: str = "fr", subtitle_style: dict = None):
+async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool = False, source_lang: str = "auto", target_lang: str = "fr", subtitle_style: dict = None):
     """
     Background task to process the video: extract audio, transcribe, and translate.
     Updates the database with the final status.
@@ -49,7 +49,19 @@ async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool 
 
         # 2. Transcription (Returns segments with timestamps)
         model = WhisperModel("base", compute_type="int8")
-        segments_generator, info = model.transcribe(audio_path)
+        
+        # Guide Whisper transcription if source language is explicitly chosen
+        transcribe_opts = {}
+        if source_lang and source_lang != "auto":
+            transcribe_opts["language"] = source_lang
+            
+        segments_generator, info = model.transcribe(audio_path, **transcribe_opts)
+        
+        # Whisper auto-detected language is in info.language
+        detected_lang = info.language
+        
+        # Use user-selected source language or fallback to detected language
+        translation_source = source_lang if (source_lang and source_lang != "auto") else detected_lang
         
         segments = []
         for segment in segments_generator:
@@ -67,7 +79,7 @@ async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool 
             )
 
         # 3. Translation (Translates text inside segments)
-        translated_segments = translate_segments(segments, target_lang=target_lang)
+        translated_segments = translate_segments(segments, target_lang=target_lang, source_lang=translation_source)
 
         # 4. Generate SRT File
         from services.srt_generator import generate_srt

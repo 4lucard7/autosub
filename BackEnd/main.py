@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from api.auth import router as auth_router
 from api.jobs import router as jobs_router
 from api.videos import router as videos_router
+from api.subtitles import router as subtitles_router
 
 app = FastAPI(title="AutoSub API")
 
@@ -34,6 +35,7 @@ app.mount(
 app.include_router(auth_router)
 app.include_router(jobs_router)
 app.include_router(videos_router)
+app.include_router(subtitles_router)
 
 @app.get("/")
 async def root():

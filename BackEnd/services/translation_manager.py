@@ -1,8 +1,37 @@
 import time
 import copy
+import json
 import logging
-import requests
 import threading
+import urllib.parse
+import urllib.request
+
+try:
+    import requests
+except ImportError:
+    requests = None
+
+try:
+    import httpx
+except ImportError:
+    httpx = None
+
+
+def _http_get_json(url: str, params: dict, timeout: int) -> dict:
+    if requests is not None:
+        response = requests.get(url, params=params, timeout=timeout)
+        response.raise_for_status()
+        return response.json()
+
+    if httpx is not None:
+        response = httpx.get(url, params=params, timeout=timeout)
+        response.raise_for_status()
+        return response.json()
+
+    query = urllib.parse.urlencode(params)
+    full_url = f"{url}?{query}"
+    with urllib.request.urlopen(full_url, timeout=timeout) as response:
+        return json.loads(response.read().decode("utf-8"))
 
 # ---------------------------------------------------------------------------
 # Logger
@@ -163,12 +192,7 @@ def translate_chunk(
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            response = requests.get(
-                MYMEMORY_URL, params=params, timeout=REQUEST_TIMEOUT
-            )
-            response.raise_for_status()
-
-            data = response.json()
+            data = _http_get_json(MYMEMORY_URL, params, REQUEST_TIMEOUT)
             status = data.get("responseStatus")
 
             if status == 200:
@@ -300,7 +324,7 @@ def translate_text(
 # ---------------------------------------------------------------------------
 # Segment-level translation (for subtitle workflows)
 # ---------------------------------------------------------------------------
-def translate_segments(segments: list, target_lang: str = "fr") -> list:
+def translate_segments(segments: list, target_lang: str = "fr", source_lang: str = "en") -> list:
     """
     Translate a list of transcription segments while preserving timestamps.
 
@@ -314,10 +338,10 @@ def translate_segments(segments: list, target_lang: str = "fr") -> list:
 
         if isinstance(new_segment, dict):
             original_text = new_segment.get("text", "")
-            new_segment["text"] = translate_text(original_text, target_lang)
+            new_segment["text"] = translate_text(original_text, target_lang, source_lang)
         else:
             original_text = getattr(new_segment, "text", "")
-            new_segment.text = translate_text(original_text, target_lang)
+            new_segment.text = translate_text(original_text, target_lang, source_lang)
 
         translated_segments.append(new_segment)
 

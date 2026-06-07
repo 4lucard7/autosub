@@ -1,3 +1,12 @@
+"""
+Premium ASS Subtitle Generator for AutoSub
+Generates Advanced SubStation Alpha files with full styling support
+"""
+
+from typing import List, Dict, Optional, Union
+from schemas.subtitle_style_schema import SubtitleStyle
+
+
 def format_ass_timestamp(seconds: float) -> str:
     """
     Converts seconds into ASS format: h:mm:ss.cs (centiseconds).
@@ -14,92 +23,183 @@ def format_ass_timestamp(seconds: float) -> str:
 
 def hex_to_ass_color(hex_color: str, alpha_opacity: float = 1.0) -> str:
     """
-    Converts standard CSS HEX color (#RRGGBB or RRGGBB) and opacity (0.0 to 1.0)
-    into ASS hexadecimal format: &H[AlphaHex][BB][GG][RR]
-    Note: ASS Alpha is inverted (00 = fully opaque, FF = fully transparent).
+    Converts standard HEX color (RRGGBB or BBGGRR format) to ASS format.
+    Handles opacity (0.0 = transparent, 1.0 = opaque).
+    ASS format: &H[AlphaHex][BB][GG][RR]
+    Note: ASS Alpha is inverted (00 = opaque, FF = transparent)
     """
     if not hex_color:
         return "&H00FFFFFF"
 
     hex_color = hex_color.lstrip('#')
     
+    # Detect if it's already in BGR format (from SubtitleStyle)
     if len(hex_color) == 6:
+        # Try to determine format - assume it's already BBGGRR if coming from schema
+        # Otherwise convert from RRGGBB
         r, g, b = hex_color[0:2], hex_color[2:4], hex_color[4:6]
-    elif len(hex_color) == 8:
-        r, g, b, a = hex_color[0:2], hex_color[2:4], hex_color[4:6], hex_color[6:8]
-        # Overwrite alpha_opacity with hex alpha value
-        alpha_opacity = int(a, 16) / 255.0
+        # Standard assumption: BBGGRR from schema
+        bgr_format = hex_color
     else:
         return "&H00FFFFFF"
 
-    # Inverted alpha calculation
+    # Inverted alpha calculation (1.0 opacity = 0x00 alpha, 0.0 opacity = 0xFF alpha)
     alpha_int = int((1.0 - alpha_opacity) * 255)
     alpha_int = max(0, min(255, alpha_int))
     alpha_hex = f"{alpha_int:02X}"
 
-    return f"&H{alpha_hex}{b}{g}{r}"
+    return f"&H{alpha_hex}{bgr_format}&"
 
 
-def generate_ass(segments: list, style: dict) -> str:
+def build_ass_style_line(style: SubtitleStyle, style_name: str = "DefaultStyle") -> str:
     """
-    Generates ASS subtitle content from whisper segments and custom style options.
+    Build a complete ASS Style definition line.
+    Format: Style: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
     """
-    font_name = style.get("font_name", "Arial")
-    font_size = style.get("font_size", 28)
-    text_color = style.get("text_color", "#FFFFFF")
-    bold = -1 if style.get("bold", False) else 0  # In ASS, -1 is bold, 0 is normal
-    italic = -1 if style.get("italic", False) else 0  # In ASS, -1 is italic, 0 is normal
-    border_style = style.get("border_style", 1)  # 1 = Outline+Shadow, 3 = Background Box
-    outline_color = style.get("outline_color", "#000000")
-    outline_width = style.get("outline_width", 2.0)
-    back_color = style.get("background_color", "#000000")
-    back_opacity = style.get("background_opacity", 0.5)
-    shadow = style.get("shadow", 1.0)
-    letter_spacing = style.get("letter_spacing", 0.0)
-    alignment = style.get("alignment", 2)
-    margin_v = style.get("margin_v", 50)  # Standard MarginV in pixels (relative to PlayResY=1080)
+    
+    # Convert colors (SubtitleStyle already has BBGGRR format)
+    primary_color = hex_to_ass_color(style.text_color)
+    outline_color = hex_to_ass_color(style.outline_color)
+    
+    # Background with opacity
+    opacity_fraction = (100 - style.background_opacity) / 100.0
+    back_color = hex_to_ass_color(style.background_color, opacity_fraction)
+    
+    # Secondary color (rarely used, set to transparent yellow)
+    secondary_color = "&H00FFFFFF&"
+    
+    # Bold and Italic as -1 or 0
+    bold = -1 if style.bold else 0
+    italic = -1 if style.italic else 0
+    
+    # Border style: 1 = outline+shadow, 3 = opaque box
+    border_style = 3 if style.background_opacity > 0 else 1
+    
+    # Total outline = outline width + shadow depth
+    total_outline = style.outline_width + style.shadow_depth
+    
+    # Alignment (1-9, numpad)
+    alignment = int(style.alignment.value)
+    
+    # Build style line
+    style_line = (
+        f"Style: {style_name},"
+        f"{style.font_name},"
+        f"{style.font_size},"
+        f"{primary_color},"
+        f"{secondary_color},"
+        f"{outline_color},"
+        f"{back_color},"
+        f"{bold},"
+        f"{italic},"
+        f"0,"  # Underline
+        f"0,"  # StrikeOut
+        f"100,"  # ScaleX
+        f"100,"  # ScaleY
+        f"{style.letter_spacing},"  # Spacing
+        f"0,"  # Angle
+        f"{border_style},"  # BorderStyle
+        f"{total_outline},"  # Outline
+        f"{style.shadow_depth},"  # Shadow
+        f"{alignment},"  # Alignment
+        f"{style.margin_l},"  # MarginL
+        f"{style.margin_r},"  # MarginR
+        f"{style.margin_v},"  # MarginV
+        f"1"  # Encoding
+    )
+    
+    return style_line
 
-    # Convert color formats
-    primary_color_ass = hex_to_ass_color(text_color)
-    outline_color_ass = hex_to_ass_color(outline_color)
-    # Background color with custom opacity
-    back_color_ass = hex_to_ass_color(back_color, back_opacity)
 
+def generate_ass(
+    segments: List[Union[Dict, object]],
+    style: Union[SubtitleStyle, Dict],
+    title: str = "AutoSub Generated Subtitles"
+) -> str:
+    """
+    Generates complete ASS subtitle content from segments and styling.
+    
+    Args:
+        segments: List of subtitle segments with 'start', 'end', 'text' keys
+        style: SubtitleStyle object or dict with styling properties
+        title: Title for the subtitle file
+        
+    Returns:
+        Complete ASS file content as string
+    """
+    
+    # Convert dict to SubtitleStyle if needed
+    if isinstance(style, dict):
+        style = SubtitleStyle(**style)
+    
     ass_lines = [
         "[Script Info]",
         "; Script generated by AutoSub Premium Subtitle Styling Studio",
+        f"Title: {title}",
         "ScriptType: v4.00+",
         "PlayResX: 1920",
         "PlayResY: 1080",
         "Timer: 100.0000",
+        "WrapStyle: 0",
         "",
         "[V4+ Styles]",
         "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-        f"Style: CustomStyle,{font_name},{font_size},{primary_color_ass},&H0000FFFF,{outline_color_ass},{back_color_ass},{bold},{italic},0,0,100,100,{letter_spacing},0,{border_style},{outline_width},{shadow},{alignment},50,50,{margin_v},1",
+        build_ass_style_line(style, "Default"),
         "",
         "[Events]",
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
     ]
 
-    for segment in segments:
+    # Add dialogue lines
+    for layer, segment in enumerate(segments):
         # Handle dict or object representation
         if isinstance(segment, dict):
-            start = segment.get("start", 0.0)
-            end = segment.get("end", 0.0)
-            text = segment.get("text", "").strip()
+            start = float(segment.get("start", 0.0))
+            end = float(segment.get("end", 0.0))
+            text = str(segment.get("text", "")).strip()
         else:
-            start = getattr(segment, "start", 0.0)
-            end = getattr(segment, "end", 0.0)
-            text = getattr(segment, "text", "").strip()
+            start = float(getattr(segment, "start", 0.0))
+            end = float(getattr(segment, "end", 0.0))
+            text = str(getattr(segment, "text", "")).strip()
 
-        # format timestamps
+        if not text:
+            continue
+
+        # Format timestamps
         start_str = format_ass_timestamp(start)
         end_str = format_ass_timestamp(end)
 
-        # Escape newlines for ASS (replace literal newlines with \N)
+        # Escape special characters for ASS format
         text_escaped = text.replace("\n", "\\N").replace("\r", "")
+        text_escaped = text_escaped.replace("{", "\\{").replace("}", "\\}")
 
-        dialogue_line = f"Dialogue: 0,{start_str},{end_str},CustomStyle,,0,0,0,,{text_escaped}"
+        dialogue_line = f"Dialogue: {layer},{start_str},{end_str},Default,,0,0,0,,{text_escaped}"
         ass_lines.append(dialogue_line)
 
     return "\n".join(ass_lines)
+
+
+def generate_ass_file(
+    segments: List[Dict],
+    style: Union[SubtitleStyle, Dict],
+    output_path: str,
+    title: str = "AutoSub Generated Subtitles"
+) -> str:
+    """
+    Generate ASS subtitle file and save to disk.
+    
+    Args:
+        segments: List of subtitle segments
+        style: SubtitleStyle configuration
+        output_path: Path where ASS file will be saved
+        title: Title for the file
+        
+    Returns:
+        Path to generated file
+    """
+    content = generate_ass(segments, style, title)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    return output_path
