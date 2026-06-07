@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -16,7 +17,11 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const data = await loginUser(email, password)
-      localStorage.setItem('token', data.access_token)
+      if (rememberMe) {
+        localStorage.setItem('token', data.access_token)
+      } else {
+        sessionStorage.setItem('token', data.access_token)
+      }
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed')
@@ -88,6 +93,8 @@ export default function LoginPage() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded cursor-pointer"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-500 cursor-pointer">

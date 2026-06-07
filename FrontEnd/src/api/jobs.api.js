@@ -1,12 +1,14 @@
 import api from './axios';
 
 // Create a new background video processing job
-export const createJob = async (videoPath, userId, burnSubtitles = false, subtitleStyle = null) => {
+export const createJob = async (videoPath, userId, burnSubtitles = false, sourceLang = 'auto', targetLang = 'fr', subtitleStyle = null) => {
   // The data matches the `JobCreate` pydantic schema in your Python backend
   const response = await api.post('/jobs/', { 
     video_path: videoPath, 
     user_id: userId,
     burn_subtitles: burnSubtitles,
+    source_lang: sourceLang,
+    target_lang: targetLang,
     subtitle_style: subtitleStyle
   });
   return response.data; 

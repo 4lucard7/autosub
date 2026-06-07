@@ -41,6 +41,20 @@ const TARGET_LANGUAGES = [
   'Korean',
 ]
 
+const LANG_CODES = {
+  'Auto Detect (Recommended)': 'auto',
+  'English': 'en',
+  'French': 'fr',
+  'Spanish': 'es',
+  'Arabic': 'ar',
+  'German': 'de',
+  'Italian': 'it',
+  'Portuguese': 'pt',
+  'Chinese': 'zh',
+  'Japanese': 'ja',
+  'Korean': 'ko',
+}
+
 const FONTS = [
   'Arial',
   'Trebuchet MS',
@@ -266,10 +280,15 @@ export default function UploadPage() {
       const videoPath = uploadResult.video?.video_path || uploadResult.file_path || uploadResult.path
 
       // Step 2: Create a processing job with styles passed
+      const sourceLangCode = LANG_CODES[sourceLanguage] || 'auto'
+      const targetLangCode = LANG_CODES[targetLanguage] || 'fr'
+
       const jobResult = await createJob(
         videoPath, 
         userId, 
         burnSubtitles, 
+        sourceLangCode,
+        targetLangCode,
         burnSubtitles ? subtitleStyle : null
       )
       setJobId(jobResult.job_id)
