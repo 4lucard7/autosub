@@ -9,9 +9,13 @@ from api.videos import router as videos_router
 app = FastAPI(title="AutoSub API")
 
 # Setup CORS to allow your frontend to connect
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, restrict this to your frontend URL
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

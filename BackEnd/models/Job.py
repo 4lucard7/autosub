@@ -20,5 +20,7 @@ class Job(BaseModel):
     burn_subtitles: bool = False
     subtitle_style: Optional[dict] = None
     status: JobStatus = JobStatus.PENDING
+    transcribed_segments: Optional[list] = None
+    target_lang: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

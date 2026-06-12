@@ -56,6 +56,8 @@ def job_serializer(job) -> dict:
         "error_message": job.get("error_message"),
         "status": job.get("status"),
         "subtitle_style": job.get("subtitle_style"),
+        "transcribed_segments": job.get("transcribed_segments"),
+        "target_lang": job.get("target_lang"),
         "created_at": job.get("created_at"),
         "updated_at": job.get("updated_at")
     }
