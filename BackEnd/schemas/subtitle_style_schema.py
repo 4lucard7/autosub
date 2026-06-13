@@ -56,6 +56,7 @@ class SubtitleStyle(BaseModel):
     margin_v: int = Field(default=30, ge=0, le=500, description="Vertical margin in pixels")
     
     # Outline/Shadow properties
+    border_style: BorderStyle = Field(default=BorderStyle.OUTLINE, description="ASS border style")
     outline_width: float = Field(default=2.0, ge=0, le=10, description="Outline width")
     outline_color: str = Field(default="000000", description="Outline color in hex BBGGRR format")
     shadow_depth: float = Field(default=0, ge=0, le=10, description="Shadow depth")

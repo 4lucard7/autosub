@@ -73,7 +73,7 @@ def build_ass_style_line(style: SubtitleStyle, style_name: str = "DefaultStyle")
     italic = -1 if style.italic else 0
     
     # Border style: 1 = outline+shadow, 3 = opaque box
-    border_style = 3 if style.background_opacity > 0 else 1
+    border_style = int(style.border_style.value)
     
     # Total outline = outline width + shadow depth
     total_outline = style.outline_width + style.shadow_depth

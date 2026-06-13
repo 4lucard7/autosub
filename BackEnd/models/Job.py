@@ -23,6 +23,7 @@ class Job(BaseModel):
     source_lang: Optional[str] = "auto"
     target_lang: Optional[str] = None
     transcribed_segments: List[dict] = Field(default_factory=list)
+    translated_segments: List[dict] = Field(default_factory=list)
     error_message: Optional[str] = None
     status: JobStatus = JobStatus.PENDING
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

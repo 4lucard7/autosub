@@ -79,7 +79,14 @@ async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool 
             )
 
         # 3. Translation (Translates text inside segments)
-        translated_segments = translate_segments(segments, target_lang=target_lang, source_lang=translation_source)
+        if target_lang and translation_source and target_lang == translation_source:
+            translated_segments = segments
+        else:
+            translated_segments = translate_segments(segments, target_lang=target_lang, source_lang=translation_source)
+        await db.jobs.update_one(
+            {"job_id": job_id},
+            {"$set": {"translated_segments": translated_segments}}
+        )
 
         # 4. Generate SRT File
         from services.srt_generator import generate_srt
@@ -123,6 +130,7 @@ async def process_video_task(job_id: str, video_path: str, burn_subtitles: bool 
                 "srt_path": srt_path,
                 "ass_path": ass_path,
                 "burned_video_path": burned_video_path,
+                "source_lang": translation_source,
                 "target_lang": target_lang
             }}
         )

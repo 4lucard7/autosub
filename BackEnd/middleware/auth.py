@@ -1,7 +1,6 @@
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from workers.DB import database as users_collection
 from jose import jwt, JWTError, ExpiredSignatureError
 from utils.token import SECRET_KEY, ALGORITHM
 

@@ -44,6 +44,8 @@ def job_serializer(job) -> dict:
         "subtitle_style": job.get("subtitle_style"),
         "source_lang": job.get("source_lang"),
         "target_lang": job.get("target_lang"),
+        "transcribed_segments": job.get("transcribed_segments"),
+        "translated_segments": job.get("translated_segments"),
         "created_at": job.get("created_at"),
         "updated_at": job.get("updated_at")
     }

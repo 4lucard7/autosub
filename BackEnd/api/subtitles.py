@@ -1,232 +1,185 @@
-"""
-Subtitle Styling API Endpoints
-Handles subtitle styling, previews, and preset management
-"""
-
-from fastapi import APIRouter, HTTPException, BackgroundTasks
-from typing import List, Optional
-from schemas.subtitle_style_schema import (
-    SubtitleStyle, 
-    SubtitleStylePreset,
-    SUBTITLE_PRESETS,
-    get_preset
-)
-from workers.DB import db
 import os
 import uuid
+import subprocess
 from datetime import datetime, timezone
-from services.ass_generator import generate_ass_file
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from schemas.subtitle_style_schema import SubtitleStyle, SUBTITLE_PRESETS
+from workers.DB import db
 
-router = APIRouter(prefix="/subtitles", tags=["Subtitles"])
+router = APIRouter()
+
+ABS_PATH = os.path.abspath(os.path.dirname(__file__))
+STORAGE_BASE = os.path.abspath(os.path.join(ABS_PATH, "..", "..", "storage"))
+OUTPUT_FOLDER = os.path.join(STORAGE_BASE, "outputs")
+
+class PreviewRenderRequest(BaseModel):
+    segments: list
+    style: SubtitleStyle
+    job_id: str
 
 
-@router.post("/styles", response_model=dict)
+def _style_payload(style: SubtitleStyle) -> dict:
+    return style.model_dump(mode="json")
+
+@router.post("/subtitles/styles", response_model=dict)
 async def save_subtitle_style(style: SubtitleStyle):
     """
-    Save a custom subtitle style to the database
-    Returns the style with an ID
+    Saves a custom subtitle style to MongoDB and returns it with a unique style_id.
     """
-    try:
-        style_id = str(uuid.uuid4())
-        
-        style_dict = style.dict()
-        style_dict["_id"] = style_id
-        style_dict["created_at"] = datetime.now(timezone.utc)
-        
-        await db.subtitle_styles.insert_one(style_dict)
-        
-        return {
-            "id": style_id,
-            "message": "Style saved successfully",
-            "style": style_dict
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save style: {str(e)}")
-
-
-@router.get("/styles/{style_id}", response_model=dict)
-async def get_subtitle_style(style_id: str):
-    """
-    Retrieve a saved subtitle style by ID
-    """
-    try:
-        style = await db.subtitle_styles.find_one({"_id": style_id})
-        if not style:
-            raise HTTPException(status_code=404, detail="Style not found")
-        
-        return {
-            "id": style.get("_id"),
-            "style": style
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/presets", response_model=dict)
-async def get_preset_styles():
-    """
-    Get all available preset subtitle styles
-    """
-    presets = {}
-    for preset_name, preset_style in SUBTITLE_PRESETS.items():
-        presets[preset_name.value] = {
-            "name": preset_style.name or preset_name.value,
-            "preset": preset_name.value,
-            "style": preset_style.dict()
-        }
+    style_id = str(uuid.uuid4())
+    style_data = _style_payload(style)
+    style_data["style_id"] = style_id
+    style_data["created_at"] = datetime.now(timezone.utc)
     
+    await db.subtitle_styles.insert_one(style_data)
+    
+    if "_id" in style_data:
+        style_data["_id"] = str(style_data["_id"])
+        
     return {
-        "message": "Preset styles retrieved successfully",
-        "presets": presets,
-        "count": len(presets)
+        "message": "Subtitle style saved successfully",
+        "style_id": style_id,
+        "style": style_data
     }
 
-
-@router.get("/presets/{preset_name}", response_model=dict)
-async def get_preset_style(preset_name: str):
+@router.get("/subtitles/styles/{style_id}", response_model=dict)
+async def get_subtitle_style(style_id: str):
     """
-    Get a specific preset style by name
+    Retrieve a saved subtitle style by ID.
     """
-    try:
-        preset_enum = SubtitleStylePreset(preset_name)
-        preset_style = get_preset(preset_enum)
+    style = await db.subtitle_styles.find_one({"style_id": style_id})
+    if not style:
+        raise HTTPException(status_code=404, detail="Saved subtitle style not found")
         
-        return {
-            "name": preset_style.name or preset_name,
-            "preset": preset_name,
-            "style": preset_style.dict()
+    if "_id" in style:
+        style["_id"] = str(style["_id"])
+    return style
+
+@router.get("/subtitles/presets", response_model=dict)
+async def get_subtitle_presets():
+    """
+    List all available subtitle presets.
+    """
+    presets_dict = {}
+    for key, style_model in SUBTITLE_PRESETS.items():
+        preset_key = key.value if hasattr(key, "value") else str(key)
+        presets_dict[preset_key] = {
+            "name": style_model.name,
+            "style": _style_payload(style_model)
         }
-    except ValueError:
-        available = [p.value for p in SubtitleStylePreset]
+    return {"presets": presets_dict}
+
+@router.get("/subtitles/presets/{preset_name}", response_model=dict)
+async def get_subtitle_preset(preset_name: str):
+    """
+    Retrieve settings for a specific preset name.
+    """
+    preset = None
+    for key, style_model in SUBTITLE_PRESETS.items():
+        if preset_name == (key.value if hasattr(key, "value") else str(key)):
+            preset = style_model
+            break
+    if not preset:
+        raise HTTPException(status_code=404, detail=f"Preset '{preset_name}' not found")
+    return _style_payload(preset)
+
+@router.post("/subtitles/preview/render", response_model=dict)
+async def render_preview_ass(request: PreviewRenderRequest):
+    """
+    Generate the raw ASS content based on segments and the styling options.
+    """
+    from services.ass_generator import generate_ass
+    try:
+        ass_content = generate_ass(request.segments, _style_payload(request.style))
+        return {"ass_content": ass_content}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to render preview: {str(e)}")
+
+@router.post("/subtitles/apply-style/{job_id}", response_model=dict)
+async def apply_style_to_job(job_id: str, style: SubtitleStyle):
+    """
+    Update a job's styling, regenerate the ASS subtitle file, and burn subtitles into the video using FFmpeg.
+    """
+    # 1. Fetch the job from MongoDB
+    job = await db.jobs.find_one({"job_id": job_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    # 2. Update style in database
+    await db.jobs.update_one(
+        {"job_id": job_id},
+        {"$set": {
+            "subtitle_style": _style_payload(style),
+            "updated_at": datetime.now(timezone.utc)
+        }}
+    )
+    
+    # 3. Read segments (fallback to empty list if none exist yet)
+    segments = job.get("translated_segments") or job.get("transcribed_segments") or []
+    
+    # 4. Generate and save the ASS file
+    from services.ass_generator import generate_ass
+    ass_content = generate_ass(segments, _style_payload(style))
+    
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+    ass_path = os.path.join(OUTPUT_FOLDER, f"{job_id}.ass")
+    with open(ass_path, "w", encoding="utf-8") as f:
+        f.write(ass_content)
+        
+    # 5. Burn subtitles into the video
+    video_path = job.get("video_path")
+    if not video_path or not os.path.exists(video_path):
+        raise HTTPException(status_code=400, detail="Original video file not found")
+        
+    burned_video_path = os.path.join(OUTPUT_FOLDER, f"{job_id}_burned.mp4")
+    
+    from services.audio_extractor import FFMPEG_BIN_PATH
+    if FFMPEG_BIN_PATH not in os.environ["PATH"]:
+        os.environ["PATH"] += os.pathsep + FFMPEG_BIN_PATH
+        
+    from workers.process_video import _build_subtitles_filter
+    try:
+        subprocess.run([
+            "ffmpeg", "-y",
+            "-i", video_path,
+            "-vf", _build_subtitles_filter(ass_path),
+            burned_video_path
+        ], check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
         raise HTTPException(
-            status_code=404, 
-            detail=f"Preset '{preset_name}' not found. Available: {available}"
+            status_code=500,
+            detail=f"FFmpeg error burning styled subtitles: {e.stderr.decode()}"
         )
-
-
-@router.post("/preview/render", response_model=dict)
-async def render_preview(
-    segments: List[dict],
-    style: SubtitleStyle,
-    job_id: Optional[str] = None
-):
-    """
-    Generate a preview ASS file for real-time visualization
-    This doesn't burn into video, just creates the ASS file for preview
-    """
-    try:
-        if not segments:
-            raise HTTPException(status_code=400, detail="No segments provided")
-        
-        # Create temporary preview file
-        preview_id = job_id or str(uuid.uuid4())
-        STORAGE_BASE = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), "..", "..", "storage"
-        ))
-        preview_folder = os.path.join(STORAGE_BASE, "previews")
-        os.makedirs(preview_folder, exist_ok=True)
-        
-        preview_path = os.path.join(preview_folder, f"{preview_id}_preview.ass")
-        
-        # Generate ASS file with the style
-        generate_ass_file(
-            segments=segments,
-            style=style,
-            output_path=preview_path,
-            title="AutoSub Preview"
-        )
-        
-        return {
-            "message": "Preview generated successfully",
-            "preview_id": preview_id,
-            "preview_path": preview_path,
-            "ass_url": f"/storage/previews/{preview_id}_preview.ass"
-        }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Preview generation failed: {str(e)}")
-
-
-@router.post("/apply-style/{job_id}", response_model=dict)
-async def apply_style_to_job(
-    job_id: str,
-    style: SubtitleStyle,
-    background_tasks: BackgroundTasks
-):
-    """
-    Apply a subtitle style to an existing job
-    This will regenerate the ASS file and optionally burn subtitles
-    """
-    try:
-        # Get the job
-        job = await db.jobs.find_one({"job_id": job_id})
-        if not job:
-            raise HTTPException(status_code=404, detail="Job not found")
-        
-        # Update job with new style
-        await db.jobs.update_one(
-            {"job_id": job_id},
-            {
-                "$set": {
-                    "subtitle_style": style.dict(),
-                    "updated_at": datetime.now(timezone.utc)
-                }
-            }
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error burning styled subtitles: {str(e)}"
         )
         
-        # Regenerate ASS file if we have transcribed segments
-        if job.get("transcribed_segments"):
-            STORAGE_BASE = os.path.abspath(os.path.join(
-                os.path.dirname(__file__), "..", "..", "storage"
-            ))
-            output_folder = os.path.join(STORAGE_BASE, "outputs")
-            os.makedirs(output_folder, exist_ok=True)
-            
-            ass_path = os.path.join(output_folder, f"{job_id}.ass")
-            
-            generate_ass_file(
-                segments=job["transcribed_segments"],
-                style=style,
-                output_path=ass_path,
-                title=f"AutoSub - {job_id}"
-            )
-            
-            # Update job with new ASS path
-            await db.jobs.update_one(
-                {"job_id": job_id},
-                {"$set": {"ass_path": ass_path}}
-            )
-        
-        return {
-            "message": "Style applied successfully",
-            "job_id": job_id,
-            "style_applied": True
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to apply style: {str(e)}")
+    # 6. Update database with new file paths
+    await db.jobs.update_one(
+        {"job_id": job_id},
+        {"$set": {
+            "ass_path": ass_path,
+            "burned_video_path": burned_video_path,
+            "updated_at": datetime.now(timezone.utc)
+        }}
+    )
+    
+    return {
+        "message": "Subtitle style applied and video regenerated successfully",
+        "ass_path": ass_path,
+        "burned_video_path": burned_video_path
+    }
 
-
-@router.get("/job/{job_id}/style", response_model=dict)
+@router.get("/subtitles/job/{job_id}/style", response_model=dict)
 async def get_job_style(job_id: str):
     """
-    Get the current subtitle style for a job
+    Retrieve the current custom subtitle style saved on a job.
     """
-    try:
-        job = await db.jobs.find_one({"job_id": job_id})
-        if not job:
-            raise HTTPException(status_code=404, detail="Job not found")
+    job = await db.jobs.find_one({"job_id": job_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
         
-        current_style = job.get("subtitle_style") or {}
-        
-        return {
-            "job_id": job_id,
-            "current_style": current_style,
-            "has_style": bool(current_style)
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return job.get("subtitle_style") or {}
