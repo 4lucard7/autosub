@@ -598,19 +598,19 @@ export default function UploadPage() {
                 transition={{ duration: 0.4, ease: 'easeInOut' }}
                 className="overflow-hidden mt-8"
               >
-                <div className="bg-slate-950 border border-slate-850 rounded-3xl p-6 md:p-8 shadow-2xl text-slate-100">
+                <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-2xl text-gray-900">
                   {/* Studio Header */}
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-slate-850 pb-5">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-gray-200 pb-5">
                     <div>
                       <div className="flex items-center gap-2.5">
                         <span className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/25 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                           Studio Mode
                         </span>
-                        <h2 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                        <h2 className="text-xl md:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-gray-900 via-gray-700 to-gray-600 bg-clip-text text-transparent">
                           Subtitle Styling Studio
                         </h2>
                       </div>
-                      <p className="text-[13px] text-slate-400 mt-1">
+                      <p className="text-[13px] text-gray-500 mt-1">
                         Craft gorgeous cinematic text formats. Perfect synchronization and high-fidelity output.
                       </p>
                     </div>
@@ -620,8 +620,8 @@ export default function UploadPage() {
                         onClick={() => setShowSafeAreas(!showSafeAreas)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[12px] font-medium transition-all ${
                           showSafeAreas 
-                            ? 'bg-slate-800/80 border-slate-700 text-slate-200 shadow-sm' 
-                            : 'bg-slate-900 border-slate-850 text-slate-400 hover:border-slate-800'
+                            ? 'bg-gray-100 border-gray-300 text-gray-700 shadow-sm' 
+                            : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300'
                         }`}
                       >
                         <Eye className="w-3.5 h-3.5" />
@@ -636,7 +636,7 @@ export default function UploadPage() {
                     <div className="flex-1 xl:order-2 space-y-4">
                       <div className="bg-slate-900/60 border border-slate-850 rounded-2xl p-4 flex flex-col items-center">
                         <div className="flex items-center justify-between w-full mb-3 px-2">
-                          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
                             <Layers className="w-3.5 h-3.5 text-indigo-400" />
                             WYSIWYG Subtitle Canvas
                           </span>
@@ -646,11 +646,11 @@ export default function UploadPage() {
                         </div>
 
                         {/* Video frame preview container */}
-                        <div className="w-full aspect-video bg-[#0c101d] rounded-xl relative overflow-hidden shadow-2xl border border-slate-800/60 group">
+                        <div className="w-full aspect-video bg-[#0c101d] rounded-xl relative overflow-hidden shadow-2xl border border-gray-200/60 group">
                           {/* Simulated scenic background frame */}
                           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-[#0E1528] to-indigo-950/20 opacity-85 z-0" />
                           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-slate-400 opacity-25 group-hover:opacity-40 transition-opacity">
+                            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-gray-500 opacity-25 group-hover:opacity-40 transition-opacity">
                               <svg className="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                             </div>
                           </div>
@@ -685,9 +685,9 @@ export default function UploadPage() {
                         </div>
 
                         {/* Quick guidance warning */}
-                        <div className="flex items-start gap-2 bg-slate-950/40 border border-slate-850 rounded-xl p-3 mt-3 w-full">
+                        <div className="flex items-start gap-2 bg-white/40 border border-gray-200 rounded-xl p-3 mt-3 w-full">
                           <Info className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
-                          <p className="text-[11.5px] text-slate-400 leading-normal">
+                          <p className="text-[11.5px] text-gray-500 leading-normal">
                             This real-time canvas simulates the exact pixel metrics of the backend ASS layout generator. Safe borders are recommended so subtitles are never blocked by TikTok/Shorts UI elements.
                           </p>
                         </div>
@@ -698,13 +698,13 @@ export default function UploadPage() {
                     <div className="w-full xl:w-[480px] xl:order-1 flex flex-col">
                       
                       {/* Tabs navigation */}
-                      <div className="flex bg-slate-900 border border-slate-850 p-1 rounded-xl mb-5">
+                      <div className="flex bg-gray-50 border border-gray-200 p-1 rounded-xl mb-5">
                         <button
                           onClick={() => setActiveTab('presets')}
                           className={`flex-1 py-2 text-[12px] font-bold rounded-lg transition-all ${
                             activeTab === 'presets' 
                               ? 'bg-indigo-600 text-white shadow-md' 
-                              : 'text-slate-400 hover:text-slate-200'
+                              : 'text-gray-500 hover:text-gray-700'
                           }`}
                         >
                           <Sparkles className="w-3.5 h-3.5 inline mr-1" />
@@ -715,7 +715,7 @@ export default function UploadPage() {
                           className={`flex-1 py-2 text-[12px] font-bold rounded-lg transition-all ${
                             activeTab === 'typography' 
                               ? 'bg-indigo-600 text-white shadow-md' 
-                              : 'text-slate-400 hover:text-slate-200'
+                              : 'text-gray-500 hover:text-gray-700'
                           }`}
                         >
                           <Type className="w-3.5 h-3.5 inline mr-1" />
@@ -726,7 +726,7 @@ export default function UploadPage() {
                           className={`flex-1 py-2 text-[12px] font-bold rounded-lg transition-all ${
                             activeTab === 'colors' 
                               ? 'bg-indigo-600 text-white shadow-md' 
-                              : 'text-slate-400 hover:text-slate-200'
+                              : 'text-gray-500 hover:text-gray-700'
                           }`}
                         >
                           <Palette className="w-3.5 h-3.5 inline mr-1" />
@@ -737,7 +737,7 @@ export default function UploadPage() {
                           className={`flex-1 py-2 text-[12px] font-bold rounded-lg transition-all ${
                             activeTab === 'layout' 
                               ? 'bg-indigo-600 text-white shadow-md' 
-                              : 'text-slate-400 hover:text-slate-200'
+                              : 'text-gray-500 hover:text-gray-700'
                           }`}
                         >
                           <Layout className="w-3.5 h-3.5 inline mr-1" />
@@ -748,7 +748,7 @@ export default function UploadPage() {
                       {/* TAB CONTENT: PRESETS */}
                       {activeTab === 'presets' && (
                         <div className="space-y-4">
-                          <h3 className="text-[12px] font-bold text-slate-450 uppercase tracking-wider mb-2">
+                          <h3 className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                             Select Subtitle Preset
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[380px] overflow-y-auto pr-1">
@@ -766,14 +766,14 @@ export default function UploadPage() {
                                   className={`cursor-pointer rounded-xl p-3 border-2 transition-all flex flex-col hover:scale-[1.01] ${
                                     isSelected 
                                       ? 'border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-600/5' 
-                                      : 'border-slate-850 bg-slate-900/55 hover:border-slate-750'
+                                      : 'border-gray-200 bg-gray-50/55 hover:border-slate-750'
                                   }`}
                                 >
                                   <div className="flex items-center justify-between mb-1.5">
-                                    <span className="text-[13px] font-extrabold text-slate-100">{preset.name}</span>
+                                    <span className="text-[13px] font-extrabold text-gray-900">{preset.name}</span>
                                     {isSelected && <span className="w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center"><Check className="w-2.5 h-2.5 text-white" /></span>}
                                   </div>
-                                  <span className="text-[10px] text-slate-400 leading-snug">{preset.description}</span>
+                                  <span className="text-[10px] text-gray-500 leading-snug">{preset.description}</span>
                                 </div>
                               )
                             })}
@@ -786,27 +786,27 @@ export default function UploadPage() {
                         <div className="space-y-5">
                           {/* Font family */}
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                               Font Family
                             </label>
                             <div className="relative">
                               <select
                                 value={subtitleStyle.font_name}
                                 onChange={e => handleStyleChange('font_name', e.target.value)}
-                                className="w-full appearance-none bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-[13px] text-slate-100 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500/25 cursor-pointer"
+                                className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-[13px] text-gray-900 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-500/25 cursor-pointer"
                               >
                                 {FONTS.map(font => (
-                                  <option key={font} value={font} className="bg-slate-900">{font}</option>
+                                  <option key={font} value={font} className="bg-gray-50">{font}</option>
                                 ))}
                               </select>
-                              <svg className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                              <svg className="w-4 h-4 text-gray-500 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                             </div>
                           </div>
 
                           {/* Size slider */}
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                 Font Size
                               </label>
                               <span className="text-[11px] font-mono text-indigo-400 font-bold">{subtitleStyle.font_size}px</span>
@@ -817,7 +817,7 @@ export default function UploadPage() {
                               max="72"
                               value={subtitleStyle.font_size}
                               onChange={e => handleStyleChange('font_size', parseInt(e.target.value))}
-                              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                             />
                           </div>
 
@@ -828,7 +828,7 @@ export default function UploadPage() {
                               className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-[12px] font-bold transition-all ${
                                 subtitleStyle.bold 
                                   ? 'bg-indigo-600 border-indigo-550 text-white shadow-md shadow-indigo-600/10' 
-                                  : 'bg-slate-900 border-slate-800 text-slate-355 hover:border-slate-700'
+                                  : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300'
                               }`}
                             >
                               <BoldIcon className="w-4 h-4" />
@@ -839,7 +839,7 @@ export default function UploadPage() {
                               className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 text-[12px] font-bold transition-all ${
                                 subtitleStyle.italic 
                                   ? 'bg-indigo-600 border-indigo-550 text-white shadow-md shadow-indigo-600/10' 
-                                  : 'bg-slate-900 border-slate-800 text-slate-355 hover:border-slate-700'
+                                  : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300'
                               }`}
                             >
                               <ItalicIcon className="w-4 h-4" />
@@ -850,7 +850,7 @@ export default function UploadPage() {
                           {/* Letter Spacing */}
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                 Letter Spacing
                               </label>
                               <span className="text-[11px] font-mono text-indigo-400 font-bold">{subtitleStyle.letter_spacing}px</span>
@@ -862,7 +862,7 @@ export default function UploadPage() {
                               step="0.5"
                               value={subtitleStyle.letter_spacing}
                               onChange={e => handleStyleChange('letter_spacing', parseFloat(e.target.value))}
-                              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                             />
                           </div>
                         </div>
@@ -873,7 +873,7 @@ export default function UploadPage() {
                         <div className="space-y-5">
                           {/* Text color selection */}
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+                            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3">
                               Text Color
                             </label>
                             <div className="flex items-center gap-3">
@@ -881,13 +881,13 @@ export default function UploadPage() {
                                 type="color" 
                                 value={subtitleStyle.text_color}
                                 onChange={e => handleStyleChange('text_color', e.target.value)}
-                                className="w-10 h-10 rounded-lg border-2 border-slate-700 bg-transparent cursor-pointer"
+                                className="w-10 h-10 rounded-lg border-2 border-gray-300 bg-transparent cursor-pointer"
                               />
                               <input 
                                 type="text" 
                                 value={subtitleStyle.text_color.toUpperCase()}
                                 onChange={e => handleStyleChange('text_color', e.target.value)}
-                                className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-[12px] font-mono text-slate-100 w-[110px]"
+                                className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[12px] font-mono text-gray-900 w-[110px]"
                               />
                               
                               {/* Simple Palette Circle buttons */}
@@ -904,20 +904,20 @@ export default function UploadPage() {
                             </div>
                           </div>
 
-                          <div className="border-t border-slate-850 my-4" />
+                          <div className="border-t border-gray-200 my-4" />
 
                           {/* Border style choice */}
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                               Visual Style Mode
                             </label>
-                            <div className="flex bg-slate-900 border border-slate-800 p-1 rounded-xl">
+                            <div className="flex bg-gray-50 border border-gray-200 p-1 rounded-xl">
                               <button
                                 onClick={() => handleStyleChange('border_style', 1)}
                                 className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${
                                   subtitleStyle.border_style === 1 
-                                    ? 'bg-slate-800 text-white shadow-sm border border-slate-700' 
-                                    : 'text-slate-400 hover:text-slate-200'
+                                    ? 'bg-gray-200 text-white shadow-sm border border-gray-300' 
+                                    : 'text-gray-500 hover:text-gray-700'
                                 }`}
                               >
                                 Outline & Shadow
@@ -926,8 +926,8 @@ export default function UploadPage() {
                                 onClick={() => handleStyleChange('border_style', 3)}
                                 className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${
                                   subtitleStyle.border_style === 3 
-                                    ? 'bg-slate-800 text-white shadow-sm border border-slate-700' 
-                                    : 'text-slate-400 hover:text-slate-200'
+                                    ? 'bg-gray-200 text-white shadow-sm border border-gray-300' 
+                                    : 'text-gray-500 hover:text-gray-700'
                                 }`}
                               >
                                 Opaque Background Box
@@ -939,7 +939,7 @@ export default function UploadPage() {
                           {subtitleStyle.border_style === 1 ? (
                             <div className="space-y-4">
                               <div>
-                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2.5">
                                   Outline Color
                                 </label>
                                 <div className="flex items-center gap-3">
@@ -947,20 +947,20 @@ export default function UploadPage() {
                                     type="color" 
                                     value={subtitleStyle.outline_color}
                                     onChange={e => handleStyleChange('outline_color', e.target.value)}
-                                    className="w-8 h-8 rounded-lg border border-slate-700 bg-transparent cursor-pointer"
+                                    className="w-8 h-8 rounded-lg border border-gray-300 bg-transparent cursor-pointer"
                                   />
                                   <input 
                                     type="text" 
                                     value={subtitleStyle.outline_color.toUpperCase()}
                                     onChange={e => handleStyleChange('outline_color', e.target.value)}
-                                    className="bg-slate-900 border border-slate-850 rounded-lg px-2.5 py-1.5 text-[11px] font-mono text-slate-100 w-[95px]"
+                                    className="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11px] font-mono text-gray-900 w-[95px]"
                                   />
                                 </div>
                               </div>
 
                               <div>
                                 <div className="flex items-center justify-between mb-2">
-                                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                  <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                     Outline Thickness
                                   </label>
                                   <span className="text-[11px] font-mono text-indigo-400 font-bold">{subtitleStyle.outline_width}px</span>
@@ -972,13 +972,13 @@ export default function UploadPage() {
                                   step="0.5"
                                   value={subtitleStyle.outline_width}
                                   onChange={e => handleStyleChange('outline_width', parseFloat(e.target.value))}
-                                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                                 />
                               </div>
 
                               <div>
                                 <div className="flex items-center justify-between mb-2">
-                                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                  <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                     Drop Shadow
                                   </label>
                                   <span className="text-[11px] font-mono text-indigo-400 font-bold">{subtitleStyle.shadow}px</span>
@@ -990,14 +990,14 @@ export default function UploadPage() {
                                   step="0.5"
                                   value={subtitleStyle.shadow}
                                   onChange={e => handleStyleChange('shadow', parseFloat(e.target.value))}
-                                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                                 />
                               </div>
                             </div>
                           ) : (
                             <div className="space-y-4">
                               <div>
-                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2.5">
                                   Background Color
                                 </label>
                                 <div className="flex items-center gap-3">
@@ -1005,20 +1005,20 @@ export default function UploadPage() {
                                     type="color" 
                                     value={subtitleStyle.background_color}
                                     onChange={e => handleStyleChange('background_color', e.target.value)}
-                                    className="w-8 h-8 rounded-lg border border-slate-700 bg-transparent cursor-pointer"
+                                    className="w-8 h-8 rounded-lg border border-gray-300 bg-transparent cursor-pointer"
                                   />
                                   <input 
                                     type="text" 
                                     value={subtitleStyle.background_color.toUpperCase()}
                                     onChange={e => handleStyleChange('background_color', e.target.value)}
-                                    className="bg-slate-900 border border-slate-850 rounded-lg px-2.5 py-1.5 text-[11px] font-mono text-slate-100 w-[95px]"
+                                    className="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-[11px] font-mono text-gray-900 w-[95px]"
                                   />
                                 </div>
                               </div>
 
                               <div>
                                 <div className="flex items-center justify-between mb-2">
-                                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                  <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                     Background Opacity
                                   </label>
                                   <span className="text-[11px] font-mono text-indigo-400 font-bold">{Math.round(subtitleStyle.background_opacity * 100)}%</span>
@@ -1030,7 +1030,7 @@ export default function UploadPage() {
                                   step="0.05"
                                   value={subtitleStyle.background_opacity}
                                   onChange={e => handleStyleChange('background_opacity', parseFloat(e.target.value))}
-                                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                                 />
                               </div>
                             </div>
@@ -1043,16 +1043,16 @@ export default function UploadPage() {
                         <div className="space-y-5">
                           {/* Alignment selector */}
                           <div>
-                            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                            <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                               Horizontal Alignment
                             </label>
-                            <div className="flex bg-slate-900 border border-slate-800 p-1 rounded-xl">
+                            <div className="flex bg-gray-50 border border-gray-200 p-1 rounded-xl">
                               <button
                                 onClick={() => handleStyleChange('alignment', 1)}
                                 className={`flex-1 py-3 rounded-lg flex items-center justify-center gap-1.5 text-[12px] font-bold transition-all ${
                                   subtitleStyle.alignment === 1 
-                                    ? 'bg-slate-800 text-white border border-slate-700 shadow-sm' 
-                                    : 'text-slate-450 hover:text-slate-200'
+                                    ? 'bg-gray-200 text-white border border-gray-300 shadow-sm' 
+                                    : 'text-gray-500 hover:text-gray-700'
                                 }`}
                               >
                                 <AlignLeft className="w-3.5 h-3.5" />
@@ -1062,8 +1062,8 @@ export default function UploadPage() {
                                 onClick={() => handleStyleChange('alignment', 2)}
                                 className={`flex-1 py-3 rounded-lg flex items-center justify-center gap-1.5 text-[12px] font-bold transition-all ${
                                   subtitleStyle.alignment === 2 
-                                    ? 'bg-slate-800 text-white border border-slate-700 shadow-sm' 
-                                    : 'text-slate-450 hover:text-slate-200'
+                                    ? 'bg-gray-200 text-white border border-gray-300 shadow-sm' 
+                                    : 'text-gray-500 hover:text-gray-700'
                                 }`}
                               >
                                 <AlignCenter className="w-3.5 h-3.5" />
@@ -1073,8 +1073,8 @@ export default function UploadPage() {
                                 onClick={() => handleStyleChange('alignment', 3)}
                                 className={`flex-1 py-3 rounded-lg flex items-center justify-center gap-1.5 text-[12px] font-bold transition-all ${
                                   subtitleStyle.alignment === 3 
-                                    ? 'bg-slate-800 text-white border border-slate-700 shadow-sm' 
-                                    : 'text-slate-450 hover:text-slate-200'
+                                    ? 'bg-gray-200 text-white border border-gray-300 shadow-sm' 
+                                    : 'text-gray-500 hover:text-gray-700'
                                 }`}
                               >
                                 <AlignRight className="w-3.5 h-3.5" />
@@ -1086,7 +1086,7 @@ export default function UploadPage() {
                           {/* Vertical position MarginV slider */}
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                 Vertical Margin (MarginV)
                               </label>
                               <span className="text-[11px] font-mono text-indigo-400 font-bold">{subtitleStyle.margin_v}px</span>
@@ -1097,7 +1097,7 @@ export default function UploadPage() {
                               max="280"
                               value={subtitleStyle.margin_v}
                               onChange={e => handleStyleChange('margin_v', parseInt(e.target.value))}
-                              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                             />
                             <p className="text-[10px] text-slate-500 mt-1 leading-normal font-sans">
                               Higher values shift the subtitles vertically upwards on the video canvas, keeping safe-zones clear.

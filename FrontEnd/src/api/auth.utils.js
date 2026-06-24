@@ -1,5 +1,6 @@
 /**
  * Authentication utilities for AutoSub frontend
+ * 
  */
 
 /**

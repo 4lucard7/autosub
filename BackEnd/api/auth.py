@@ -28,7 +28,7 @@ async def register(user_data: UserCreate):
     )
     
     # save user in database
-    await db.users.insert_one(new_user.dict(by_alias=True))
+    await db.users.insert_one(new_user.model_dump(by_alias=True))
 
     return JSONResponse(
         status_code=200,
