@@ -9,7 +9,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -17,12 +16,6 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const data = await loginUser(email, password)
-<<<<<<< HEAD
-      if (rememberMe) {
-        localStorage.setItem('token', data.access_token)
-      } else {
-        sessionStorage.setItem('token', data.access_token)
-=======
       localStorage.setItem('token', data.access_token)
       // Decode the JWT payload to store user info (email, etc.)
       try {
@@ -31,7 +24,6 @@ export default function LoginPage() {
       } catch (_) {
         // Fallback: store email from the form
         localStorage.setItem('user', JSON.stringify({ email }))
->>>>>>> 9ada42803e310dc87d6c15905733dc9a3d3660e4
       }
       navigate('/dashboard')
     } catch (err) {
